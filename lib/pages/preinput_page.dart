@@ -1,4 +1,6 @@
+// preinput_page.dart
 import 'package:flutter/material.dart';
+import 'login.dart';
 
 class PreInputPage extends StatefulWidget {
   const PreInputPage({super.key});
@@ -21,11 +23,7 @@ class _PreInputPageState extends State<PreInputPage> {
           child: ListView(
             shrinkWrap: true,
             children: [
-              const Text(
-                'Let Us Know Your Usage!',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
+              const Text('Let Us Know Your Usage!', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
               const SizedBox(height: 20),
               buildTextField('Last Month'),
               buildTextField('Last 2 Month'),
@@ -35,21 +33,14 @@ class _PreInputPageState extends State<PreInputPage> {
               const SizedBox(height: 5),
               DropdownButtonFormField<String>(
                 items: ['Tap Water', 'Filtered Water', 'Bottled Water']
-                    .map((type) => DropdownMenuItem(
-                          value: type,
-                          child: Text(type),
-                        ))
+                    .map((type) => DropdownMenuItem(value: type, child: Text(type)))
                     .toList(),
                 onChanged: (value) {},
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
               ),
               const SizedBox(height: 10),
               buildTextField('Cost of water/Unit'),
               const SizedBox(height: 10),
-
-              // Checkbox 1
               CheckboxListTile(
                 controlAffinity: ListTileControlAffinity.leading,
                 title: const Text("Have you ever record your Bill"),
@@ -60,8 +51,6 @@ class _PreInputPageState extends State<PreInputPage> {
                   });
                 },
               ),
-
-              // Checkbox 2
               CheckboxListTile(
                 controlAffinity: ListTileControlAffinity.leading,
                 title: const Text("Press me, If you think you waste water!"),
@@ -72,24 +61,17 @@ class _PreInputPageState extends State<PreInputPage> {
                   });
                 },
               ),
-
               const SizedBox(height: 20),
-
               ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF8CBAB7),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8CBAB7), padding: const EdgeInsets.symmetric(vertical: 16)),
                 onPressed: () {
-                  // Add next page navigation or logic here
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
+                    (route) => false,
+                  );
                 },
-                child: const Text(
-                  'Create an Account',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: const Text('Create an Account', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -102,10 +84,7 @@ class _PreInputPageState extends State<PreInputPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextField(
-        decoration: InputDecoration(
-          border: const OutlineInputBorder(),
-          labelText: label,
-        ),
+        decoration: InputDecoration(border: const OutlineInputBorder(), labelText: label),
       ),
     );
   }
