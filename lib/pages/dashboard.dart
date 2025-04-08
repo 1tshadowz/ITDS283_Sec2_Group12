@@ -11,91 +11,94 @@ class DashboardPage extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top Icons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Icon(Icons.settings, color: Colors.white, size: 28),
-                  Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // WARNING Card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD1E9F6),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Column(
-                  children: [
-                    Text(
-                      "WARNING!",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      "Save Water, track every drop.",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.blueGrey,
-                      ),
-                    ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Icons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Icon(Icons.settings, color: Colors.white, size: 28),
+                    Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
                   ],
                 ),
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              // Weekly Report
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.8),
+                // WARNING Card
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD1E9F6),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Column(
+                    children: [
+                      Text(
+                        "WARNING!",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        "Save Water, track every drop.",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.blueGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Weekly Report
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("Weekly Report"),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        height: 40,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: List.generate(10, (index) {
+                            return Container(
+                              width: 8,
+                              height: (index % 5 + 1) * 8,
+                              color: const Color(0xFF39A6B2),
+                            );
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // News/Image
+                ClipRRect(
                   borderRadius: BorderRadius.circular(16),
+                  child: Image.asset(
+                    'assets/images/news_sample.png',
+                    height: 180,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    cacheWidth: 600, // optimize image load
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("Weekly Report"),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      height: 40,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: List.generate(10, (index) {
-                          return Container(
-                            width: 8,
-                            height: (index % 5 + 1) * 8,
-                            color: const Color(0xFF39A6B2),
-                          );
-                        }),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // News/Image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.asset(
-                  'assets/images/news_sample.png', // <-- Replace with your image path
-                  height: 180,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

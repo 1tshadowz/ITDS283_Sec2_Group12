@@ -51,11 +51,7 @@ class LoginPage extends StatelessWidget {
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
                   ),
                 ),
-                const SizedBox(height: 10),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text("Forget Password?", style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
-                ),
+               
                 const SizedBox(height: 30),
                 SizedBox(
                   width: double.infinity,
