@@ -94,7 +94,14 @@ class DashboardPage extends StatelessWidget {
                     height: 180,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    cacheWidth: 600, // optimize image load
+                    cacheWidth: 600,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 180,
+                      color: Colors.grey[300],
+                      child: const Center(
+                        child: Text("Image failed to load"),
+                      ),
+                    ),
                   ),
                 ),
               ],
