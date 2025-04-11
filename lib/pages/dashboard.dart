@@ -25,58 +25,65 @@ class DashboardPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // WARNING Card
+                // --- WARNING CARD ---
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 60),
+                  margin: const EdgeInsets.symmetric(vertical: 25),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD1E9F6),
+                    color: Colors.blue[100],
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,                   
                     children: [
                       Text(
                         "WARNING!",
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 40,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
                       ),
-                      SizedBox(height: 5),
+                      SizedBox(height: 20),
                       Text(
                         "Save Water, track every drop.",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.blueGrey,
-                        ),
+                        style: TextStyle(fontSize: 16, color: Colors.blueGrey),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
 
-                // Weekly Report
+                // --- WEEKLY REPORT CARD ---
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(40),
+                  margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.white.withOpacity(0.95),
+                    borderRadius: BorderRadius.circular(25),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("Weekly Report"),
-                      const SizedBox(height: 10),
+                      const Text(
+                        "Weekly Report",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 70),
                       SizedBox(
-                        height: 40,
+                        height: 50,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: List.generate(10, (index) {
                             return Container(
-                              width: 8,
-                              height: (index % 5 + 1) * 8,
-                              color: const Color(0xFF39A6B2),
+                              width: 10,
+                              height: (index % 5 + 2) * 10,
+                              decoration: BoxDecoration(
+                                color: Colors.cyan[700],
+                                borderRadius: BorderRadius.circular(4),
+                              ),
                             );
                           }),
                         ),
@@ -84,24 +91,19 @@ class DashboardPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
 
-                // News/Image
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Image.asset(
-                    'assets/images/news_sample.png',
-                    height: 180,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    cacheWidth: 600,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      height: 180,
-                      color: Colors.grey[300],
-                      child: const Center(
-                        child: Text("Image failed to load"),
-                      ),
-                    ),
+                // --- NEWS IMAGE PLACEHOLDER ---
+                Container(
+                  width: double.infinity,
+                  height: 180,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  alignment: Alignment.center,
+                  child: const Text(
+                    "News Image Placeholder",
+                    style: TextStyle(color: Colors.grey),
                   ),
                 ),
               ],
@@ -120,11 +122,11 @@ class _CustomBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<IconData> icons = [
-      Icons.pie_chart_outline,
-      Icons.calendar_today,
-      Icons.home,
-      Icons.emoji_events_outlined,
-      Icons.water_drop_outlined,
+      Icons.sports_basketball,     
+      Icons.calendar_today,        
+      Icons.home,                  
+      Icons.emoji_events_outlined, 
+      Icons.water_drop_outlined,   
     ];
 
     return Container(
