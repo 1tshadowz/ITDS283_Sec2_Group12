@@ -1,13 +1,52 @@
 import 'package:flutter/material.dart';
+import 'track.dart';
+import 'activity.dart';
+import 'achievement.dart';
+import 'products.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  int selectedIndex = 2; // Home is index 2
+
+  void _onItemTapped(int index) {
+    if (index == selectedIndex) return;
+
+    setState(() {
+      selectedIndex = index;
+    });
+
+    if (index == 0) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => const TrackWaterPage()));
+    } else if (index == 1) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => const ActivityPage()));
+    } else if (index == 3) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (_) =>
+                  const AchievementPage(title: "Achievements")));
+    } else if (index == 4) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => const ProductPage()));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF8ECAC4),
-      bottomNavigationBar: const _CustomBottomNavBar(selectedIndex: 2),
+      bottomNavigationBar: _CustomBottomNavBar(
+        selectedIndex: selectedIndex,
+        onItemTapped: _onItemTapped,
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -15,27 +54,26 @@ class DashboardPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Top Icons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: const [
                     Icon(Icons.settings, color: Colors.white, size: 28),
-                    Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
+                    Icon(Icons.account_circle_outlined,
+                        color: Colors.white, size: 30),
                   ],
                 ),
                 const SizedBox(height: 20),
-
-                // --- WARNING CARD ---
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 60),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 60),
                   margin: const EdgeInsets.symmetric(vertical: 25),
                   decoration: BoxDecoration(
                     color: Colors.blue[100],
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,                   
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         "WARNING!",
@@ -53,8 +91,6 @@ class DashboardPage extends StatelessWidget {
                     ],
                   ),
                 ),
-
-                // --- WEEKLY REPORT CARD ---
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(40),
@@ -68,7 +104,8 @@ class DashboardPage extends StatelessWidget {
                     children: [
                       const Text(
                         "Weekly Report",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
                       ),
                       const SizedBox(height: 70),
                       SizedBox(
@@ -91,8 +128,6 @@ class DashboardPage extends StatelessWidget {
                     ],
                   ),
                 ),
-
-                // --- NEWS IMAGE PLACEHOLDER ---
                 Container(
                   width: double.infinity,
                   height: 180,
@@ -117,16 +152,21 @@ class DashboardPage extends StatelessWidget {
 
 class _CustomBottomNavBar extends StatelessWidget {
   final int selectedIndex;
-  const _CustomBottomNavBar({required this.selectedIndex});
+  final Function(int) onItemTapped;
+
+  const _CustomBottomNavBar({
+    required this.selectedIndex,
+    required this.onItemTapped,
+  });
 
   @override
   Widget build(BuildContext context) {
     List<IconData> icons = [
-      Icons.sports_basketball,     
-      Icons.calendar_today,        
-      Icons.home,                  
-      Icons.emoji_events_outlined, 
-      Icons.water_drop_outlined,   
+      Icons.pie_chart,
+      Icons.calendar_today,
+      Icons.home,
+      Icons.emoji_events_outlined,
+      Icons.water_drop_outlined,
     ];
 
     return Container(
@@ -143,10 +183,13 @@ class _CustomBottomNavBar extends StatelessWidget {
         children: icons.asMap().entries.map((entry) {
           int idx = entry.key;
           IconData icon = entry.value;
-          return Icon(
-            icon,
-            size: 28,
-            color: selectedIndex == idx ? Colors.black : Colors.grey,
+          return IconButton(
+            icon: Icon(
+              icon,
+              size: 28,
+              color: selectedIndex == idx ? Colors.black : Colors.grey,
+            ),
+            onPressed: () => onItemTapped(idx),
           );
         }).toList(),
       ),
