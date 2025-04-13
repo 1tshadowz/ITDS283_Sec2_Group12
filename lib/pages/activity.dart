@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'track.dart';
-import 'activity.dart';
 import 'dashboard.dart';
 import 'achievement.dart';
 import 'products.dart';
@@ -16,7 +15,11 @@ class _ActivityPageState extends State<ActivityPage> {
   int selectedIndex = 1; // Activity is index 1
 
   void _onItemTapped(int index) {
-    if (index == selectedIndex) return;
+    if (index == selectedIndex) {
+      // Refresh the page if tapped again
+      setState(() {});
+      return;
+    }
 
     setState(() {
       selectedIndex = index;
@@ -24,19 +27,20 @@ class _ActivityPageState extends State<ActivityPage> {
 
     if (index == 0) {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const TrackWaterPage()));
+        context,
+        MaterialPageRoute(builder: (_) => const TrackWaterPage()));
     } else if (index == 2) {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const DashboardPage()));
+        context,
+        MaterialPageRoute(builder: (_) => const DashboardPage()));
     } else if (index == 3) {
       Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (_) =>
-                  const AchievementPage(title: "Achievements")));
+        context,
+        MaterialPageRoute(builder: (_) => const AchievementPage(title: "Achievements")));
     } else if (index == 4) {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const ProductPage()));
+        context,
+        MaterialPageRoute(builder: (_) => const ProductPage()));
     }
   }
 
@@ -57,8 +61,7 @@ class _ActivityPageState extends State<ActivityPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
                   Icon(Icons.settings, color: Colors.white, size: 28),
-                  Icon(Icons.account_circle_outlined,
-                      color: Colors.white, size: 30),
+                  Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
                 ],
               ),
               const SizedBox(height: 20),
@@ -78,23 +81,12 @@ class _ActivityPageState extends State<ActivityPage> {
                     const SizedBox(height: 8),
                     Table(
                       children: [
-                        _buildCalendarRow(["S", "M", "T", "W", "T", "F", "Sa"],
-                            bold: true),
+                        _buildCalendarRow(["S", "M", "T", "W", "T", "F", "Sa"], bold: true),
                         _buildCalendarRow(["", "", "", "", "", "", "1"]),
                         _buildCalendarRow(["2", "3", "4", "5", "6", "7", "8"]),
-                        _buildCalendarRow(
-                            ["9", "10", "11", "12", "13", "14", "15"]),
-                        _buildCalendarRow([
-                          "16",
-                          "17",
-                          "18",
-                          "19",
-                          "20",
-                          "21",
-                          "22"
-                        ], highlight: "19"),
-                        _buildCalendarRow(
-                            ["23", "24", "25", "26", "27", "28", ""]),
+                        _buildCalendarRow(["9", "10", "11", "12", "13", "14", "15"]),
+                        _buildCalendarRow(["16", "17", "18", "19", "20", "21", "22"], highlight: "19"),
+                        _buildCalendarRow(["23", "24", "25", "26", "27", "28", ""]),
                       ],
                     ),
                   ],
@@ -108,26 +100,10 @@ class _ActivityPageState extends State<ActivityPage> {
                   crossAxisSpacing: 16,
                   childAspectRatio: 1,
                   children: const [
-                    ActivityCard(
-                        label: "Drinking",
-                        progress: 5203,
-                        goal: 10000,
-                        emoji: "🧑‍⚕️"),
-                    ActivityCard(
-                        label: "Showering",
-                        progress: 4636,
-                        goal: 10000,
-                        emoji: "🚿"),
-                    ActivityCard(
-                        label: "Cooking",
-                        progress: 3000,
-                        goal: 10000,
-                        emoji: "🧑‍🍳"),
-                    ActivityCard(
-                        label: "Watering the Plant",
-                        progress: 2000,
-                        goal: 10000,
-                        emoji: "🌱"),
+                    ActivityCard(label: "Drinking", progress: 5203, goal: 10000, emoji: "🧑‍⚕️"),
+                    ActivityCard(label: "Showering", progress: 4636, goal: 10000, emoji: "🚿"),
+                    ActivityCard(label: "Cooking", progress: 3000, goal: 10000, emoji: "🧑‍🍳"),
+                    ActivityCard(label: "Watering the Plant", progress: 2000, goal: 10000, emoji: "🌱"),
                   ],
                 ),
               ),
@@ -138,8 +114,7 @@ class _ActivityPageState extends State<ActivityPage> {
     );
   }
 
-  TableRow _buildCalendarRow(List<String> days,
-      {bool bold = false, String? highlight}) {
+  TableRow _buildCalendarRow(List<String> days, {bool bold = false, String? highlight}) {
     return TableRow(
       children: days.map((day) {
         bool isHighlight = day == highlight;
@@ -147,8 +122,7 @@ class _ActivityPageState extends State<ActivityPage> {
           padding: const EdgeInsets.all(4),
           child: Center(
             child: CircleAvatar(
-              backgroundColor:
-                  isHighlight ? Colors.teal : Colors.transparent,
+              backgroundColor: isHighlight ? Colors.teal : Colors.transparent,
               radius: 14,
               child: Text(
                 day,

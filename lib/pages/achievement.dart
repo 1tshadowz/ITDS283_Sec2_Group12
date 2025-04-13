@@ -50,10 +50,6 @@ class _AchievementPageState extends State<AchievementPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F6F6),
-      appBar: AppBar(
-        title: Text(widget.title),
-        backgroundColor: Colors.teal,
-      ),
       body: Center(
         child: Text(
           widget.title,

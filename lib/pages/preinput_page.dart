@@ -1,17 +1,57 @@
 // preinput_page.dart
 import 'package:flutter/material.dart';
 import 'login.dart';
+import '../db/db_helper.dart';
 
 class PreInputPage extends StatefulWidget {
-  const PreInputPage({super.key});
+  final String username;
+  final String email;
+  final String password;
+  final String phone;
+
+  const PreInputPage({
+    super.key,
+    required this.username,
+    required this.email,
+    required this.password,
+    required this.phone,
+  });
 
   @override
   State<PreInputPage> createState() => _PreInputPageState();
 }
 
 class _PreInputPageState extends State<PreInputPage> {
+  final TextEditingController lastMonthController = TextEditingController();
+  final TextEditingController last2MonthController = TextEditingController();
+  final TextEditingController last3MonthController = TextEditingController();
+  final TextEditingController costController = TextEditingController();
+
+  String selectedWaterType = 'Tap Water';
   bool isChecked1 = false;
   bool isChecked2 = false;
+
+  Future<void> _createAccount() async {
+    await DatabaseHelper.instance.insertUser({
+      'username': widget.username,
+      'email': widget.email,
+      'password': widget.password,
+      'phone': widget.phone,
+      'last_month': lastMonthController.text,
+      'last_2_month': last2MonthController.text,
+      'last_3_month': last3MonthController.text,
+      'water_type': selectedWaterType,
+      'cost': costController.text,
+      'record_bill': isChecked1 ? 1 : 0,
+      'think_waste': isChecked2 ? 1 : 0,
+    });
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,55 +63,52 @@ class _PreInputPageState extends State<PreInputPage> {
           child: ListView(
             shrinkWrap: true,
             children: [
-              const Text('Let Us Know Your Usage!', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+              const Text(
+                'Let Us Know Your Usage!',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 20),
-              buildTextField('Last Month'),
-              buildTextField('Last 2 Month'),
-              buildTextField('Last 3 Month'),
+              buildTextField('Last Month', lastMonthController),
+              buildTextField('Last 2 Month', last2MonthController),
+              buildTextField('Last 3 Month', last3MonthController),
               const SizedBox(height: 10),
               const Text('What is the most type of water You use'),
               const SizedBox(height: 5),
               DropdownButtonFormField<String>(
+                value: selectedWaterType,
                 items: ['Tap Water', 'Filtered Water', 'Bottled Water']
                     .map((type) => DropdownMenuItem(value: type, child: Text(type)))
                     .toList(),
-                onChanged: (value) {},
+                onChanged: (value) => setState(() => selectedWaterType = value!),
                 decoration: const InputDecoration(border: OutlineInputBorder()),
               ),
               const SizedBox(height: 10),
-              buildTextField('Cost of water/Unit'),
+              buildTextField('Cost of water/Unit', costController),
               const SizedBox(height: 10),
               CheckboxListTile(
                 controlAffinity: ListTileControlAffinity.leading,
                 title: const Text("Have you ever record your Bill"),
                 value: isChecked1,
-                onChanged: (value) {
-                  setState(() {
-                    isChecked1 = value!;
-                  });
-                },
+                onChanged: (value) => setState(() => isChecked1 = value!),
               ),
               CheckboxListTile(
                 controlAffinity: ListTileControlAffinity.leading,
                 title: const Text("Press me, If you think you waste water!"),
                 value: isChecked2,
-                onChanged: (value) {
-                  setState(() {
-                    isChecked2 = value!;
-                  });
-                },
+                onChanged: (value) => setState(() => isChecked2 = value!),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8CBAB7), padding: const EdgeInsets.symmetric(vertical: 16)),
-                onPressed: () {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginPage()),
-                    (route) => false,
-                  );
-                },
-                child: const Text('Create an Account', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF8CBAB7),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onPressed: _createAccount,
+                child: const Text(
+                  'Create an Account',
+                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
@@ -80,11 +117,15 @@ class _PreInputPageState extends State<PreInputPage> {
     );
   }
 
-  Widget buildTextField(String label) {
+  Widget buildTextField(String label, TextEditingController controller) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextField(
-        decoration: InputDecoration(border: const OutlineInputBorder(), labelText: label),
+        controller: controller,
+        decoration: InputDecoration(
+          border: const OutlineInputBorder(),
+          labelText: label,
+        ),
       ),
     );
   }
