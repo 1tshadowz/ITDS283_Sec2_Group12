@@ -3,7 +3,7 @@ import 'track.dart';
 import 'activity.dart';
 import 'dashboard.dart';
 import 'achievement.dart';
-import 'products.dart';
+import 'news.dart';
 
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key});
