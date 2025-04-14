@@ -12,31 +12,51 @@ class TrackWaterPage extends StatefulWidget {
 }
 
 class _TrackWaterPageState extends State<TrackWaterPage> {
-  final List<String> _dropdownItems = [
+  // รายการสำหรับ Dropdown ของแต่ละคำถาม
+  final List<String> _usageItems = [
     'Select',
-    'Option 1',
-    'Option 2',
-    'Option 3'
+    'Drinking',
+    'Showering',
+    'Cooking',
+    'Watering Plant'
+  ];
+  final List<String> _buildingTypeItems = [
+    'Select',
+    'House',
+    'Condo'
+  ];
+  final List<String> _leakageItems = [
+    'Select',
+    'Yes',
+    'No'
+  ];
+  final List<String> _satisfactionItems = [
+    'Select',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5'
   ];
 
   String? usage;
   String? buildingType;
-  String? quantity;
-  String? perUnit;
   String? leakage;
   String? satisfaction;
+
+  // สำหรับช่องกรอกตัวเลข
+  final TextEditingController quantityController = TextEditingController();
+  final TextEditingController perUnitController = TextEditingController();
 
   int selectedIndex = 0;
 
   void _onItemTapped(int index) {
     if (index == selectedIndex) return;
-
     setState(() {
       selectedIndex = index;
     });
-
     if (index == 0) {
-      // Already on Track page
+      // อยู่ที่ Track page อยู่แล้ว
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
@@ -60,7 +80,8 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
     }
   }
 
-  Widget buildDropdown(String label, String? value, Function(String?) onChanged) {
+  // ฟังก์ชันสร้าง Dropdown ที่รับรายการ item เป็นพารามิเตอร์
+  Widget buildDropdown(String label, String? value, List<String> items, Function(String?) onChanged) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -75,10 +96,28 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
         ),
         value: value,
         icon: const Icon(Icons.arrow_drop_down),
-        items: _dropdownItems
-            .map((item) => DropdownMenuItem(value: item, child: Text(item)))
-            .toList(),
+        items: items.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
         onChanged: onChanged,
+      ),
+    );
+  }
+
+  // ฟังก์ชันสร้าง TextField สำหรับกรอกตัวเลข
+  Widget buildNumberField(String label, TextEditingController controller) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          labelText: label,
+          border: InputBorder.none,
+        ),
       ),
     );
   }
@@ -93,42 +132,74 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
         elevation: 0,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Icon(Icons.settings, size: 30, color: Colors.white), // ← white
-                  Icon(Icons.person, size: 30, color: Colors.white),   // ← white
+        child: SingleChildScrollView(
+          // SingleChildScrollView ช่วยให้กรณีคีย์บอร์ดเปิดแล้วหน้าเลื่อนได้
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Icon(Icons.settings, size: 30, color: Colors.white),
+                    Icon(Icons.person, size: 30, color: Colors.white),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                // What you use water for?
+                buildDropdown(
+                  "What you use water for?",
+                  usage,
+                  _usageItems,
+                  (val) => setState(() => usage = val),
+                ),
+                // Which type of your building?
+                buildDropdown(
+                  "Which type of your building?",
+                  buildingType,
+                  _buildingTypeItems,
+                  (val) => setState(() => buildingType = val),
+                ),
+                // ถ้า usage ไม่เท่ากับ "Cooking" จะแสดงช่องกรอกตัวเลข
+                if (usage != "Cooking") ...[
+                  buildNumberField("Used water quantity", quantityController),
+                  buildNumberField("How about water per Units (price per unit)", perUnitController),
                 ],
-              ),
-              const SizedBox(height: 20),
-              buildDropdown("What you use water for?", usage, (val) => setState(() => usage = val)),
-              buildDropdown("Which type of your building?", buildingType, (val) => setState(() => buildingType = val)),
-              buildDropdown("Used water quantity", quantity, (val) => setState(() => quantity = val)),
-              buildDropdown("How about water per Units", perUnit, (val) => setState(() => perUnit = val)),
-              buildDropdown("Did you notice any leaking taps or pipes?", leakage, (val) => setState(() => leakage = val)),
-              buildDropdown("How satisfied are you with your current water usage habits?", satisfaction, (val) => setState(() => satisfaction = val)),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle submission
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFA5E6A0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                // Did you notice any leaking taps or pipes?
+                buildDropdown(
+                  "Did you notice any leaking taps or pipes?",
+                  leakage,
+                  _leakageItems,
+                  (val) => setState(() => leakage = val),
+                ),
+                // How satisfied are you with your current water usage habits?
+                buildDropdown(
+                  "How satisfied are you with your current water usage habits?",
+                  satisfaction,
+                  _satisfactionItems,
+                  (val) => setState(() => satisfaction = val),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    // Handle submission here
+                    // สามารถนำข้อมูลจากตัวแปร (usage, buildingType, quantityController.text, perUnitController.text, leakage, satisfaction)
+                    // ไปประมวลผลหรือต่อการแสดงผลได้ตามต้องการ
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFA5E6A0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    minimumSize: const Size(double.infinity, 50),
                   ),
-                  minimumSize: const Size(double.infinity, 50),
+                  child: const Text(
+                    "Confirm",
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
-                child: const Text(
-                  "Confirm",
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
