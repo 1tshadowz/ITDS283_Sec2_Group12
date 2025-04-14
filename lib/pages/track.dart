@@ -18,26 +18,11 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
     'Drinking',
     'Showering',
     'Cooking',
-    'Watering Plant'
+    'Watering Plant',
   ];
-  final List<String> _buildingTypeItems = [
-    'Select',
-    'House',
-    'Condo'
-  ];
-  final List<String> _leakageItems = [
-    'Select',
-    'Yes',
-    'No'
-  ];
-  final List<String> _satisfactionItems = [
-    'Select',
-    '1',
-    '2',
-    '3',
-    '4',
-    '5'
-  ];
+  final List<String> _buildingTypeItems = ['Select', 'House', 'Condo'];
+  final List<String> _leakageItems = ['Select', 'Yes', 'No'];
+  final List<String> _satisfactionItems = ['Select', '1', '2', '3', '4', '5'];
 
   String? usage;
   String? buildingType;
@@ -70,7 +55,9 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
     } else if (index == 3) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const AchievementPage(title: "Achievements")),
+        MaterialPageRoute(
+          builder: (_) => const AchievementPage(title: "Achievements"),
+        ),
       );
     } else if (index == 4) {
       Navigator.pushReplacement(
@@ -81,7 +68,12 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
   }
 
   // ฟังก์ชันสร้าง Dropdown ที่รับรายการ item เป็นพารามิเตอร์
-  Widget buildDropdown(String label, String? value, List<String> items, Function(String?) onChanged) {
+  Widget buildDropdown(
+    String label,
+    String? value,
+    List<String> items,
+    Function(String?) onChanged,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -90,13 +82,13 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
         borderRadius: BorderRadius.circular(30),
       ),
       child: DropdownButtonFormField<String>(
-        decoration: InputDecoration(
-          labelText: label,
-          border: InputBorder.none,
-        ),
+        decoration: InputDecoration(labelText: label, border: InputBorder.none),
         value: value,
         icon: const Icon(Icons.arrow_drop_down),
-        items: items.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
+        items:
+            items
+                .map((item) => DropdownMenuItem(value: item, child: Text(item)))
+                .toList(),
         onChanged: onChanged,
       ),
     );
@@ -114,10 +106,7 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
       child: TextFormField(
         controller: controller,
         keyboardType: TextInputType.number,
-        decoration: InputDecoration(
-          labelText: label,
-          border: InputBorder.none,
-        ),
+        decoration: InputDecoration(labelText: label, border: InputBorder.none),
       ),
     );
   }
@@ -163,7 +152,10 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
                 // ถ้า usage ไม่เท่ากับ "Cooking" จะแสดงช่องกรอกตัวเลข
                 if (usage != "Cooking") ...[
                   buildNumberField("Used water quantity", quantityController),
-                  buildNumberField("How about water per Units (price per unit)", perUnitController),
+                  buildNumberField(
+                    "How about water per Units (price per unit)",
+                    perUnitController,
+                  ),
                 ],
                 // Did you notice any leaking taps or pipes?
                 buildDropdown(
@@ -180,11 +172,40 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
                   (val) => setState(() => satisfaction = val),
                 ),
                 const SizedBox(height: 20),
+                // Confirm button
+                // ElevatedButton เป็นปุ่มที่มีการยกตัวขึ้นเมื่อกด
                 ElevatedButton(
+                  // Handle submission here
+                // สามารถนำข้อมูลจากตัวแปร (usage, buildingType, quantityController.text, perUnitController.text, leakage, satisfaction)
+                // ไปประมวลผลหรือต่อการแสดงผลได้ตามต้องการ
                   onPressed: () {
-                    // Handle submission here
-                    // สามารถนำข้อมูลจากตัวแปร (usage, buildingType, quantityController.text, perUnitController.text, leakage, satisfaction)
-                    // ไปประมวลผลหรือต่อการแสดงผลได้ตามต้องการ
+                    // แสดง AlertDialog หลังจากกด Confirm
+                    showDialog(
+                      context: context,
+                      builder:
+                          (context) => AlertDialog(
+                            title: const Text("Update Success"),
+                            content: const Text(
+                              "Data updated successfully.\n(Note: No real data submission has been made.)",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  // ปิด AlertDialog
+                                  Navigator.pop(context);
+                                  // นำไปยังหน้า ActivityPage
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const ActivityPage(),
+                                    ),
+                                  );
+                                },
+                                child: const Text("OK"),
+                              ),
+                            ],
+                          ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFA5E6A0),
@@ -241,18 +262,19 @@ class _CustomBottomNavBar extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: icons.asMap().entries.map((entry) {
-          int idx = entry.key;
-          IconData icon = entry.value;
-          return IconButton(
-            icon: Icon(
-              icon,
-              size: 28,
-              color: selectedIndex == idx ? Colors.black : Colors.grey,
-            ),
-            onPressed: () => onItemTapped(idx),
-          );
-        }).toList(),
+        children:
+            icons.asMap().entries.map((entry) {
+              int idx = entry.key;
+              IconData icon = entry.value;
+              return IconButton(
+                icon: Icon(
+                  icon,
+                  size: 28,
+                  color: selectedIndex == idx ? Colors.black : Colors.grey,
+                ),
+                onPressed: () => onItemTapped(idx),
+              );
+            }).toList(),
       ),
     );
   }
