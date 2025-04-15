@@ -6,6 +6,7 @@ import 'activity.dart';
 import 'dashboard.dart';
 import 'achievement.dart';
 import 'setting.dart';
+import 'test.dart'; // เพิ่มการ import ไฟล์ test.dart ที่มี TestPage
 
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key});
@@ -19,7 +20,7 @@ class _ProductPageState extends State<ProductPage> {
   PageController _pageController = PageController(initialPage: 0);
   Timer? _timer;
 
-  // รายการภาพแบนเนอร์ (อัปเดต path ให้ตรงกับ asset ของคุณในอนาคต)
+  // รายการภาพแบนเนอร์ (URL จากอินเทอร์เน็ต)
   final List<String> bannerImages = [
     'https://www.baankrongnam.com/uploads/products/5/510/5ef163e5cf18d6b562d236a1a25a7b77.jpg',
     'https://fastly.picsum.photos/id/9/5000/3269.jpg?hmac=cZKbaLeduq7rNB8X-bigYO8bvPIWtT-mh8GRXtU3vPc',
@@ -50,10 +51,8 @@ class _ProductPageState extends State<ProductPage> {
       return [];
     }
     return allProducts
-        .where(
-          (product) =>
-              product.toLowerCase().contains(searchQuery.toLowerCase()),
-        )
+        .where((product) =>
+            product.toLowerCase().contains(searchQuery.toLowerCase()))
         .toList();
   }
 
@@ -92,6 +91,12 @@ class _ProductPageState extends State<ProductPage> {
     }
   }
 
+  // ฟังก์ชันค้นหาผ่านอินเทอร์เน็ต (ค้นหาผ่าน Google)
+  Future<void> performSearch() async {
+    final String searchUrl = "https://www.google.com/search?q=$searchQuery";
+    await openUrl(searchUrl);
+  }
+
   void _onItemTapped(int index) {
     if (index == selectedIndex) return;
     setState(() {
@@ -116,8 +121,7 @@ class _ProductPageState extends State<ProductPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => const AchievementPage(title: "Achievements"),
-        ),
+            builder: (_) => const AchievementPage(title: "Achievements")),
       );
     } else if (index == 4) {
       // Already on ProductPage
@@ -135,14 +139,12 @@ class _ProductPageState extends State<ProductPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              icon: const Icon(Icons.settings, color: Colors.white, size: 28),
+              icon:
+                  const Icon(Icons.settings, color: Colors.white, size: 28),
               onPressed: () {
-                // Navigate to Settings Page
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const SettingPage(),
-                  ), // Navigate to settings
+                  MaterialPageRoute(builder: (_) => const SettingPage()),
                 );
               },
             ),
@@ -156,7 +158,8 @@ class _ProductPageState extends State<ProductPage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -190,57 +193,31 @@ class _ProductPageState extends State<ProductPage> {
                 ),
               ),
               const SizedBox(height: 10),
-              // ผลลัพธ์ค้นหา (ถ้ามี)
+              // ปุ่มค้นหา (Custom Internet Search)
               if (searchQuery.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12.withOpacity(0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: filteredProducts.length,
-                      itemBuilder: (context, index) {
-                        final product = filteredProducts[index];
-                        return ListTile(
-                          title: Text(product),
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Clicked: $product")),
-                            );
-                          },
-                        );
-                      },
-                    ),
+                  child: ElevatedButton(
+                    onPressed: performSearch,
+                    child: Text("ค้นหา: $searchQuery"),
                   ),
                 ),
               const SizedBox(height: 50),
-              // Banner ที่เลื่อนสลับไปมาแบบ infinite loop พร้อมขอบมนและความกว้างลดลง
+              // Banner ที่เลื่อนสลับไปมาแบบ infinite loop
               SizedBox(
                 height: 150,
                 child: PageView.builder(
                   controller: _pageController,
-                  itemCount: null, // ไม่มีการจำกัดจำนวนแบนเนอร์
+                  itemCount: null,
                   itemBuilder: (context, index) {
                     int displayIndex = index % bannerImages.length;
                     String bannerUrl = bannerImages[displayIndex];
-                    String bannerLink =
-                        bannerLinks[displayIndex]; // รับลิงก์ตามแบนเนอร์ที่แสดง
+                    String bannerLink = bannerLinks[displayIndex];
 
                     return Center(
                       child: GestureDetector(
                         onTap: () async {
-                          await openUrl(bannerLink); // เรียกใช้ฟังก์ชัน openUrl
+                          await openUrl(bannerLink);
                         },
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16),
@@ -255,9 +232,8 @@ class _ProductPageState extends State<ProductPage> {
                   },
                 ),
               ),
-
               const SizedBox(height: 50),
-              // กล่องไอคอนที่อยู่ระหว่างแบนเนอร์และภาพสินค้า (แต่ละอันแยกเป็นกล่อง)
+              // กล่องไอคอน
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
@@ -271,7 +247,7 @@ class _ProductPageState extends State<ProductPage> {
                 ),
               ),
               const SizedBox(height: 50),
-              // แถวของภาพสินค้าที่สามารถเลื่อนซ้ายขวาได้
+              // แถวของภาพสินค้า
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -282,6 +258,19 @@ class _ProductPageState extends State<ProductPage> {
                     const SizedBox(width: 16),
                     _buildProductImage("Image 3"),
                   ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              // เพิ่มปุ่มใหม่เพื่อไปยัง test.dart (TestPage)
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const TestLinkPage()),
+                    );
+                  },
+                  child: const Text("Go to Test Page"),
                 ),
               ),
               const SizedBox(height: 20),
@@ -300,9 +289,9 @@ class _ProductPageState extends State<ProductPage> {
   Widget _buildIconBox(IconData icon, String label, Color color) {
     return InkWell(
       onTap: () {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("$label clicked")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("$label clicked")),
+        );
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -332,9 +321,9 @@ class _ProductPageState extends State<ProductPage> {
   Widget _buildProductImage(String label) {
     return InkWell(
       onTap: () {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("$label clicked")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("$label clicked")),
+        );
       },
       child: Container(
         color: Colors.grey[300],
@@ -376,19 +365,18 @@ class _CustomBottomNavBar extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children:
-            icons.asMap().entries.map((entry) {
-              int idx = entry.key;
-              IconData icon = entry.value;
-              return IconButton(
-                icon: Icon(
-                  icon,
-                  size: 28,
-                  color: selectedIndex == idx ? Colors.black : Colors.grey,
-                ),
-                onPressed: () => onItemTapped(idx),
-              );
-            }).toList(),
+        children: icons.asMap().entries.map((entry) {
+          int idx = entry.key;
+          IconData icon = entry.value;
+          return IconButton(
+            icon: Icon(
+              icon,
+              size: 28,
+              color: selectedIndex == idx ? Colors.black : Colors.grey,
+            ),
+            onPressed: () => onItemTapped(idx),
+          );
+        }).toList(),
       ),
     );
   }
