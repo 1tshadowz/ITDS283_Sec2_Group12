@@ -6,7 +6,7 @@ import 'activity.dart';
 import 'dashboard.dart';
 import 'achievement.dart';
 import 'setting.dart';
-import 'test.dart'; // เพิ่มการ import ไฟล์ test.dart ที่มี TestPage
+
 
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key});
@@ -258,19 +258,6 @@ class _ProductPageState extends State<ProductPage> {
                     const SizedBox(width: 16),
                     _buildProductImage("Image 3"),
                   ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              // เพิ่มปุ่มใหม่เพื่อไปยัง test.dart (TestPage)
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const TestLinkPage()),
-                    );
-                  },
-                  child: const Text("Go to Test Page"),
                 ),
               ),
               const SizedBox(height: 20),
