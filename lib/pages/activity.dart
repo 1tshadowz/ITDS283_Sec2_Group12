@@ -3,6 +3,7 @@ import 'track.dart';
 import 'dashboard.dart';
 import 'achievement.dart';
 import 'products.dart';
+import 'setting.dart';
 
 class ActivityPage extends StatefulWidget {
   const ActivityPage({super.key});
@@ -59,8 +60,17 @@ class _ActivityPageState extends State<ActivityPage> {
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Icon(Icons.settings, color: Colors.white, size: 28),
+                children: [
+                  IconButton(
+              icon: const Icon(Icons.settings, color: Colors.white, size: 28),
+              onPressed: () {
+                // Navigate to Settings Page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingPage()), // Navigate to settings
+                );
+              },
+            ),
                   Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
                 ],
               ),

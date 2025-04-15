@@ -5,6 +5,7 @@ import 'activity.dart';
 import 'dashboard.dart';
 import 'achievement.dart';
 import 'products.dart';
+import 'setting.dart';
 
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key});
@@ -110,9 +111,18 @@ class _ProductPageState extends State<ProductPage> {
         elevation: 0,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Icon(Icons.settings, color: Colors.white, size: 28),
-            Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
+           children: [
+            IconButton(
+              icon: const Icon(Icons.settings, color: Colors.white, size: 28),
+              onPressed: () {
+                // Navigate to Settings Page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingPage()), // Navigate to settings
+                );
+              },
+            ),
+            const Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
           ],
         ),
       ),

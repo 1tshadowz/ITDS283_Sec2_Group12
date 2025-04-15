@@ -3,6 +3,7 @@ import 'activity.dart';
 import 'dashboard.dart';
 import 'achievement.dart';
 import 'products.dart';
+import 'setting.dart';
 
 class TrackWaterPage extends StatefulWidget {
   const TrackWaterPage({super.key});
@@ -129,10 +130,19 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Icon(Icons.settings, size: 30, color: Colors.white),
-                    Icon(Icons.person, size: 30, color: Colors.white),
-                  ],
+                   children: [
+            IconButton(
+              icon: const Icon(Icons.settings, color: Colors.white, size: 28),
+              onPressed: () {
+                // Navigate to Settings Page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingPage()), // Navigate to settings
+                );
+              },
+            ),
+            const Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
+          ],
                 ),
                 const SizedBox(height: 20),
                 // What you use water for?

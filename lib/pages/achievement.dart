@@ -3,6 +3,7 @@ import 'track.dart';
 import 'activity.dart';
 import 'dashboard.dart';
 import 'products.dart';
+import 'setting.dart';
 import 'news.dart';
 
 class AchievementPage extends StatefulWidget {
@@ -20,19 +21,19 @@ class _AchievementPageState extends State<AchievementPage> {
   final List<Map<String, dynamic>> achievements = [
     {
       'title': 'Today, You added your Water Usage!',
-      'progress': '1/1', 
+      'progress': '1/1',
       'color': const Color(0xFFB2D9B2),
       'completed': true,
     },
     {
       'title': 'Participated in Water Saving Event!',
-      'progress': '0/1', 
+      'progress': '0/1',
       'color': Colors.grey,
       'completed': false,
     },
     {
       'title': 'Reached Personal Water Goal!',
-      'progress': '2/5', 
+      'progress': '2/5',
       'color': const Color(0xFFD0E8F2),
       'completed': false,
     },
@@ -46,42 +47,50 @@ class _AchievementPageState extends State<AchievementPage> {
 
     if (index == 0) {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const TrackWaterPage()));
+        context,
+        MaterialPageRoute(builder: (_) => const TrackWaterPage()),
+      );
     } else if (index == 1) {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const ActivityPage()));
+        context,
+        MaterialPageRoute(builder: (_) => const ActivityPage()),
+      );
     } else if (index == 2) {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const DashboardPage()));
+        context,
+        MaterialPageRoute(builder: (_) => const DashboardPage()),
+      );
     } else if (index == 4) {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const ProductPage()));
+        context,
+        MaterialPageRoute(builder: (_) => const ProductPage()),
+      );
     }
   }
 
   double getProgressValue(String progress) {
-    final parts = progress.split('/');  
-    final current = int.parse(parts[0]); 
+    final parts = progress.split('/');
+    final current = int.parse(parts[0]);
     final total = int.parse(parts[1]);
 
-    return current / total; 
+    return current / total;
   }
 
   // Widget สำหรับการ์ด Achievement
   Widget buildAchievementCard(Map<String, dynamic> achievement) {
     String progress = achievement['progress'];
-    double progressValue = getProgressValue(progress); 
+    double progressValue = getProgressValue(progress);
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 25), 
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20), 
+      margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16), 
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black12.withOpacity(0.1),
-            blurRadius: 4,  
+            blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
@@ -98,7 +107,7 @@ class _AchievementPageState extends State<AchievementPage> {
                     Text(
                       achievement['title'],
                       style: const TextStyle(
-                        fontSize: 28,  
+                        fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Color.fromARGB(255, 79, 150, 168),
                       ),
@@ -114,7 +123,7 @@ class _AchievementPageState extends State<AchievementPage> {
               // ไอคอนจะอยู่ทางขวาสุด
               Container(
                 width: 80,
-                height: 80, 
+                height: 80,
                 decoration: BoxDecoration(
                   color: (achievement['color'] as Color).withOpacity(0.3),
                   shape: BoxShape.circle,
@@ -122,7 +131,7 @@ class _AchievementPageState extends State<AchievementPage> {
                 child: Icon(
                   achievement['completed'] ? Icons.check : Icons.star_outline,
                   color: achievement['color'] as Color,
-                  size: 60, 
+                  size: 60,
                 ),
               ),
             ],
@@ -160,9 +169,28 @@ class _AchievementPageState extends State<AchievementPage> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Icon(Icons.settings, color: Colors.white, size: 28),
-                  Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.settings,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    onPressed: () {
+                      // Navigate to Settings Page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SettingPage(),
+                        ), // Navigate to settings
+                      );
+                    },
+                  ),
+                  const Icon(
+                    Icons.account_circle_outlined,
+                    color: Colors.white,
+                    size: 30,
+                  ),
                 ],
               ),
             ),
@@ -216,18 +244,19 @@ class _CustomBottomNavBar extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: icons.asMap().entries.map((entry) {
-          int idx = entry.key;
-          IconData icon = entry.value;
-          return IconButton(
-            icon: Icon(
-              icon,
-              size: 28,
-              color: selectedIndex == idx ? Colors.black : Colors.grey,
-            ),
-            onPressed: () => onItemTapped(idx),
-          );
-        }).toList(),
+        children:
+            icons.asMap().entries.map((entry) {
+              int idx = entry.key;
+              IconData icon = entry.value;
+              return IconButton(
+                icon: Icon(
+                  icon,
+                  size: 28,
+                  color: selectedIndex == idx ? Colors.black : Colors.grey,
+                ),
+                onPressed: () => onItemTapped(idx),
+              );
+            }).toList(),
       ),
     );
   }

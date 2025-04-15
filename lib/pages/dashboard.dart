@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'news.dart';
 import 'track.dart';
 import 'activity.dart';
 import 'achievement.dart';
 import 'products.dart';
+import 'setting.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -23,19 +25,26 @@ class _DashboardPageState extends State<DashboardPage> {
 
     if (index == 0) {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const TrackWaterPage()));
+        context,
+        MaterialPageRoute(builder: (_) => const TrackWaterPage()),
+      );
     } else if (index == 1) {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const ActivityPage()));
+        context,
+        MaterialPageRoute(builder: (_) => const ActivityPage()),
+      );
     } else if (index == 3) {
       Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (_) =>
-                  const AchievementPage(title: "Achievements")));
+        context,
+        MaterialPageRoute(
+          builder: (_) => const AchievementPage(title: "Achievements"),
+        ),
+      );
     } else if (index == 4) {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const ProductPage()));
+        context,
+        MaterialPageRoute(builder: (_) => const ProductPage()),
+      );
     }
   }
 
@@ -56,17 +65,37 @@ class _DashboardPageState extends State<DashboardPage> {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Icon(Icons.settings, color: Colors.white, size: 28),
-                    Icon(Icons.account_circle_outlined,
-                        color: Colors.white, size: 30),
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.settings,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                      onPressed: () {
+                        // Navigate to Settings Page
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SettingPage(),
+                          ), // Navigate to settings
+                        );
+                      },
+                    ),
+                    Icon(
+                      Icons.account_circle_outlined,
+                      color: Colors.white,
+                      size: 30,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
                 Container(
                   width: double.infinity,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 60),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 60,
+                  ),
                   margin: const EdgeInsets.symmetric(vertical: 25),
                   decoration: BoxDecoration(
                     color: Colors.blue[100],
@@ -105,7 +134,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       const Text(
                         "Weekly Report",
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w500),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       const SizedBox(height: 70),
                       SizedBox(
@@ -136,9 +167,20 @@ class _DashboardPageState extends State<DashboardPage> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   alignment: Alignment.center,
-                  child: const Text(
-                    "News Image Placeholder",
-                    style: TextStyle(color: Colors.grey),
+                  child: GestureDetector(
+                    onTap: () {
+                      // เมื่อคลิกที่ภาพนี้ ให้ไปที่หน้า NewsPage
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const NewsPage(),
+                        ), // Navigate to NewsPage
+                      );
+                    },
+                    child: const Text(
+                      "News Image Placeholder",
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ),
                 ),
               ],
@@ -180,18 +222,19 @@ class _CustomBottomNavBar extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: icons.asMap().entries.map((entry) {
-          int idx = entry.key;
-          IconData icon = entry.value;
-          return IconButton(
-            icon: Icon(
-              icon,
-              size: 28,
-              color: selectedIndex == idx ? Colors.black : Colors.grey,
-            ),
-            onPressed: () => onItemTapped(idx),
-          );
-        }).toList(),
+        children:
+            icons.asMap().entries.map((entry) {
+              int idx = entry.key;
+              IconData icon = entry.value;
+              return IconButton(
+                icon: Icon(
+                  icon,
+                  size: 28,
+                  color: selectedIndex == idx ? Colors.black : Colors.grey,
+                ),
+                onPressed: () => onItemTapped(idx),
+              );
+            }).toList(),
       ),
     );
   }
