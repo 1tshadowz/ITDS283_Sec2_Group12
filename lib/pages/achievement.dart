@@ -4,7 +4,6 @@ import 'activity.dart';
 import 'dashboard.dart';
 import 'products.dart';
 import 'setting.dart';
-import 'news.dart';
 
 class AchievementPage extends StatefulWidget {
   final String title;

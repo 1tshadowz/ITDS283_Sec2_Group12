@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'track.dart';
 import 'activity.dart';
 import 'dashboard.dart';
 import 'achievement.dart';
-import 'products.dart';
 import 'setting.dart';
 
 class ProductPage extends StatefulWidget {
@@ -21,9 +21,16 @@ class _ProductPageState extends State<ProductPage> {
 
   // รายการภาพแบนเนอร์ (อัปเดต path ให้ตรงกับ asset ของคุณในอนาคต)
   final List<String> bannerImages = [
-    'assets/images/banner0.jpg',
-    'assets/images/banner1.jpg',
-    'assets/images/banner2.jpg',
+    'https://www.baankrongnam.com/uploads/products/5/510/5ef163e5cf18d6b562d236a1a25a7b77.jpg',
+    'https://fastly.picsum.photos/id/9/5000/3269.jpg?hmac=cZKbaLeduq7rNB8X-bigYO8bvPIWtT-mh8GRXtU3vPc',
+    'https://fastly.picsum.photos/id/11/2500/1667.jpg?hmac=xxjFJtAPgshYkysU_aqx2sZir-kIOjNR9vx0te7GycQ',
+  ];
+
+  // รายการลิงก์ที่ต้องการให้เปิดเมื่อคลิกที่แต่ละแบนเนอร์
+  final List<String> bannerLinks = [
+    'https://www.baankrongnam.com/product/ro-rain-1', // ลิงก์สำหรับแบนเนอร์ที่ 1
+    'https://www.google.com', // ลิงก์สำหรับแบนเนอร์ที่ 2
+    'https://www.example3.com', // ลิงก์สำหรับแบนเนอร์ที่ 3
   ];
 
   // Dummy data สำหรับ search (Product & Service ที่เกี่ยวกับการลดการใช้น้ำ)
@@ -43,16 +50,18 @@ class _ProductPageState extends State<ProductPage> {
       return [];
     }
     return allProducts
-        .where((product) =>
-            product.toLowerCase().contains(searchQuery.toLowerCase()))
+        .where(
+          (product) =>
+              product.toLowerCase().contains(searchQuery.toLowerCase()),
+        )
         .toList();
   }
 
   @override
   void initState() {
     super.initState();
-    // ใช้ Timer เพื่อ auto scroll ทุก 3 วินาที
-    _timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
+    // ใช้ Timer เพื่อ auto scroll ทุก 5 วินาที
+    _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
       if (_pageController.hasClients) {
         int nextPage = _pageController.page!.toInt() + 1;
         _pageController.animateToPage(
@@ -69,6 +78,18 @@ class _ProductPageState extends State<ProductPage> {
     _timer?.cancel();
     _pageController.dispose();
     super.dispose();
+  }
+
+  // ฟังก์ชันเปิด URL
+  Future<void> openUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Couldn't open the link: $url")),
+      );
+    }
   }
 
   void _onItemTapped(int index) {
@@ -95,7 +116,8 @@ class _ProductPageState extends State<ProductPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (_) => const AchievementPage(title: "Achievements")),
+          builder: (_) => const AchievementPage(title: "Achievements"),
+        ),
       );
     } else if (index == 4) {
       // Already on ProductPage
@@ -111,32 +133,39 @@ class _ProductPageState extends State<ProductPage> {
         elevation: 0,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-           children: [
+          children: [
             IconButton(
               icon: const Icon(Icons.settings, color: Colors.white, size: 28),
               onPressed: () {
                 // Navigate to Settings Page
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const SettingPage()), // Navigate to settings
+                  MaterialPageRoute(
+                    builder: (_) => const SettingPage(),
+                  ), // Navigate to settings
                 );
               },
             ),
-            const Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
+            const Icon(
+              Icons.account_circle_outlined,
+              color: Colors.white,
+              size: 30,
+            ),
           ],
         ),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Search Bar
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -201,28 +230,24 @@ class _ProductPageState extends State<ProductPage> {
                 height: 150,
                 child: PageView.builder(
                   controller: _pageController,
+                  itemCount: null, // ไม่มีการจำกัดจำนวนแบนเนอร์
                   itemBuilder: (context, index) {
                     int displayIndex = index % bannerImages.length;
+                    String bannerUrl = bannerImages[displayIndex];
+                    String bannerLink =
+                        bannerLinks[displayIndex]; // รับลิงก์ตามแบนเนอร์ที่แสดง
+
                     return Center(
                       child: GestureDetector(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Banner $displayIndex clicked")),
-                          );
+                        onTap: () async {
+                          await openUrl(bannerLink); // เรียกใช้ฟังก์ชัน openUrl
                         },
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16),
-                          child: Container(
+                          child: Image.network(
+                            bannerUrl,
                             width: MediaQuery.of(context).size.width * 0.8,
-                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                            color: Colors.grey[300],
-                            child: Center(
-                              child: Text(
-                                'Banner $displayIndex',
-                                style: const TextStyle(
-                                    fontSize: 24, color: Colors.black),
-                              ),
-                            ),
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
@@ -230,6 +255,7 @@ class _ProductPageState extends State<ProductPage> {
                   },
                 ),
               ),
+
               const SizedBox(height: 50),
               // กล่องไอคอนที่อยู่ระหว่างแบนเนอร์และภาพสินค้า (แต่ละอันแยกเป็นกล่อง)
               Padding(
@@ -274,9 +300,9 @@ class _ProductPageState extends State<ProductPage> {
   Widget _buildIconBox(IconData icon, String label, Color color) {
     return InkWell(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("$label clicked")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("$label clicked")));
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -306,9 +332,9 @@ class _ProductPageState extends State<ProductPage> {
   Widget _buildProductImage(String label) {
     return InkWell(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("$label clicked")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("$label clicked")));
       },
       child: Container(
         color: Colors.grey[300],
@@ -350,18 +376,19 @@ class _CustomBottomNavBar extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: icons.asMap().entries.map((entry) {
-          int idx = entry.key;
-          IconData icon = entry.value;
-          return IconButton(
-            icon: Icon(
-              icon,
-              size: 28,
-              color: selectedIndex == idx ? Colors.black : Colors.grey,
-            ),
-            onPressed: () => onItemTapped(idx),
-          );
-        }).toList(),
+        children:
+            icons.asMap().entries.map((entry) {
+              int idx = entry.key;
+              IconData icon = entry.value;
+              return IconButton(
+                icon: Icon(
+                  icon,
+                  size: 28,
+                  color: selectedIndex == idx ? Colors.black : Colors.grey,
+                ),
+                onPressed: () => onItemTapped(idx),
+              );
+            }).toList(),
       ),
     );
   }
