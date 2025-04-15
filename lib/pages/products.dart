@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'track.dart';
 import 'activity.dart';
 import 'dashboard.dart';
 import 'achievement.dart';
-import 'news.dart';
+import 'products.dart';
 
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key});
@@ -14,31 +15,66 @@ class ProductPage extends StatefulWidget {
 
 class _ProductPageState extends State<ProductPage> {
   int selectedIndex = 4;
-  PageController _pageController = PageController();
+  PageController _pageController = PageController(initialPage: 0);
+  Timer? _timer;
+
+  // รายการภาพแบนเนอร์ (อัปเดต path ให้ตรงกับ asset ของคุณในอนาคต)
+  final List<String> bannerImages = [
+    'assets/images/banner0.jpg',
+    'assets/images/banner1.jpg',
+    'assets/images/banner2.jpg',
+  ];
+
+  // Dummy data สำหรับ search (Product & Service ที่เกี่ยวกับการลดการใช้น้ำ)
+  final List<String> allProducts = [
+    "Water Saving Kit",
+    "Efficient Shower Head",
+    "Low Flow Faucet",
+    "Rainwater Harvesting System",
+    "Water Filter",
+    "Eco-friendly Toilet",
+    "Solar Water Heater",
+  ];
+  String searchQuery = "";
+
+  List<String> get filteredProducts {
+    if (searchQuery.isEmpty) {
+      return [];
+    }
+    return allProducts
+        .where((product) =>
+            product.toLowerCase().contains(searchQuery.toLowerCase()))
+        .toList();
+  }
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 3), _autoScroll);
+    // ใช้ Timer เพื่อ auto scroll ทุก 3 วินาที
+    _timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
+      if (_pageController.hasClients) {
+        int nextPage = _pageController.page!.toInt() + 1;
+        _pageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
-  void _autoScroll() {
-    if (_pageController.hasClients) {
-      _pageController.nextPage(
-        duration: Duration(seconds: 1),
-        curve: Curves.easeInOut,
-      );
-      Future.delayed(Duration(seconds: 3), _autoScroll);
-    }
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
   }
 
   void _onItemTapped(int index) {
     if (index == selectedIndex) return;
-
     setState(() {
       selectedIndex = index;
     });
-
     if (index == 0) {
       Navigator.pushReplacement(
         context,
@@ -57,7 +93,8 @@ class _ProductPageState extends State<ProductPage> {
     } else if (index == 3) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const AchievementPage(title: "Achievements")),
+        MaterialPageRoute(
+            builder: (_) => const AchievementPage(title: "Achievements")),
       );
     } else if (index == 4) {
       // Already on ProductPage
@@ -79,117 +116,195 @@ class _ProductPageState extends State<ProductPage> {
           ],
         ),
       ),
-      body: Column(
-        children: [
-          // Banner that auto slides
-          SizedBox(
-            height: 200,
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: 3, // Number of images
-              itemBuilder: (context, index) {
-                return Container(
-                  color: Colors.grey[300], // Placeholder for images
-                  child: Center(
-                    child: Text(
-                      'Banner $index', // Placeholder text
-                      style: TextStyle(color: Colors.black, fontSize: 24),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Search Bar
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12.withOpacity(0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "Search Products & Services",
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              // ผลลัพธ์ค้นหา (ถ้ามี)
+              if (searchQuery.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12.withOpacity(0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: filteredProducts.length,
+                      itemBuilder: (context, index) {
+                        final product = filteredProducts[index];
+                        return ListTile(
+                          title: Text(product),
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Clicked: $product")),
+                            );
+                          },
+                        );
+                      },
                     ),
                   ),
-                );
-                // Uncomment and update when images are available
-                // return Image.asset(
-                //   'assets/images/banner$index.jpg',
-                //   fit: BoxFit.cover,
-                // );
-              },
-            ),
-          ),
-          const SizedBox(height: 50),
-          
-          // Add the icon boxes between the banner and images
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                ),
+              const SizedBox(height: 50),
+              // Banner ที่เลื่อนสลับไปมาแบบ infinite loop พร้อมขอบมนและความกว้างลดลง
+              SizedBox(
+                height: 150,
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemBuilder: (context, index) {
+                    int displayIndex = index % bannerImages.length;
+                    return Center(
+                      child: GestureDetector(
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Banner $displayIndex clicked")),
+                          );
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                            color: Colors.grey[300],
+                            child: Center(
+                              child: Text(
+                                'Banner $displayIndex',
+                                style: const TextStyle(
+                                    fontSize: 24, color: Colors.black),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    children: [
-                      Icon(Icons.battery_full, color: Colors.orange, size: 40),
-                      const Text("Battery", style: TextStyle(color: Colors.black)),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Icon(Icons.coffee, color: Colors.brown, size: 40),
-                      const Text("Coffee", style: TextStyle(color: Colors.black)),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Icon(Icons.shopping_bag, color: Colors.blue, size: 40),
-                      const Text("Bag", style: TextStyle(color: Colors.black)),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Icon(Icons.shower, color: Colors.cyan, size: 40),
-                      const Text("Shower", style: TextStyle(color: Colors.black)),
-                    ],
-                  ),
-                ],
+              const SizedBox(height: 50),
+              // กล่องไอคอนที่อยู่ระหว่างแบนเนอร์และภาพสินค้า (แต่ละอันแยกเป็นกล่อง)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildIconBox(Icons.local_drink, "Glass", Colors.orange),
+                    _buildIconBox(Icons.local_cafe, "Cafe", Colors.brown),
+                    _buildIconBox(Icons.shopping_bag, "Bag", Colors.blue),
+                    _buildIconBox(Icons.shower, "Shower", Colors.cyan),
+                  ],
+                ),
               ),
-            ),
+              const SizedBox(height: 50),
+              // แถวของภาพสินค้าที่สามารถเลื่อนซ้ายขวาได้
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildProductImage("Image 1"),
+                    const SizedBox(width: 16),
+                    _buildProductImage("Image 2"),
+                    const SizedBox(width: 16),
+                    _buildProductImage("Image 3"),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
           ),
-          const SizedBox(height: 50),
-
-          // Row of images that can be swiped horizontally
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                Container(
-                  color: Colors.grey[300], // Placeholder for image
-                  width: 150,
-                  height: 150,
-                  child: Center(child: Text('Image 1')), // Placeholder text
-                ),
-                const SizedBox(width: 16),
-                Container(
-                  color: Colors.grey[300], // Placeholder for image
-                  width: 150,
-                  height: 150,
-                  child: Center(child: Text('Image 2')), // Placeholder text
-                ),
-                const SizedBox(width: 16),
-                Container(
-                  color: Colors.grey[300], // Placeholder for image
-                  width: 150,
-                  height: 150,
-                  child: Center(child: Text('Image 3')), // Placeholder text
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-        ],
+        ),
       ),
       bottomNavigationBar: _CustomBottomNavBar(
         selectedIndex: selectedIndex,
         onItemTapped: _onItemTapped,
+      ),
+    );
+  }
+
+  // ฟังก์ชันสร้างกล่องไอคอนที่สามารถคลิกได้
+  Widget _buildIconBox(IconData icon, String label, Color color) {
+    return InkWell(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("$label clicked")),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12.withOpacity(0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 40),
+            const SizedBox(height: 4),
+            Text(label, style: const TextStyle(color: Colors.black)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ฟังก์ชันสร้าง widget สำหรับผลิตภัณฑ์ (สินค้าคลิกได้)
+  Widget _buildProductImage(String label) {
+    return InkWell(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("$label clicked")),
+        );
+      },
+      child: Container(
+        color: Colors.grey[300],
+        width: 150,
+        height: 150,
+        child: Center(child: Text(label)),
       ),
     );
   }
