@@ -1,4 +1,3 @@
-// preinput_page.dart
 import 'package:flutter/material.dart';
 import 'login.dart';
 import '../db/db_helper.dart';
@@ -31,11 +30,11 @@ class _PreInputPageState extends State<PreInputPage> {
   bool isChecked1 = false;
   bool isChecked2 = false;
 
-  Future<void> _createAccount() async {
-    await DatabaseHelper.instance.insertUser({
+  Future<void> _submitData() async {
+    // รวมข้อมูลทั้งหมดจากหน้า PreInputPage และ CreateAccountPage
+    final result = {
       'username': widget.username,
       'email': widget.email,
-      'password': widget.password,
       'phone': widget.phone,
       'last_month': lastMonthController.text,
       'last_2_month': last2MonthController.text,
@@ -44,13 +43,10 @@ class _PreInputPageState extends State<PreInputPage> {
       'cost': costController.text,
       'record_bill': isChecked1 ? 1 : 0,
       'think_waste': isChecked2 ? 1 : 0,
-    });
+    };
 
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginPage()),
-      (route) => false,
-    );
+    // ส่งข้อมูลกลับไปยัง CreateAccountPage
+    Navigator.pop(context, result);  // ส่งข้อมูลกลับไป
   }
 
   @override
@@ -104,7 +100,7 @@ class _PreInputPageState extends State<PreInputPage> {
                   backgroundColor: const Color(0xFF8CBAB7),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                onPressed: _createAccount,
+                onPressed: _submitData,  // เมื่อกดปุ่ม จะส่งข้อมูลกลับไปที่ CreateAccountPage
                 child: const Text(
                   'Create an Account',
                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),

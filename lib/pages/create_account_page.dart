@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'preinput_page.dart';
-import '../db/db_helper.dart';
 
 class CreateAccountPage extends StatefulWidget {
   const CreateAccountPage({super.key});
@@ -16,9 +18,13 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   final _confirmPasswordController = TextEditingController();
   final _phoneController = TextEditingController();
 
-  Future<void> _goToPreInput() async {
-    final db = await DatabaseHelper.instance.database;
+  @override
+  void initState() {
+    super.initState();
+    Firebase.initializeApp();  // Ensure Firebase is initialized
+  }
 
+  Future<void> _goToPreInput() async {
     String username = _usernameController.text.trim();
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
@@ -35,28 +41,54 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       return;
     }
 
-    final existing = await db.query(
-      'users',
-      where: 'email = ?',
-      whereArgs: [email],
-    );
+    try {
+      // Create a new user using Firebase Auth
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    if (existing.isNotEmpty) {
-      _showAlert('Email already exists!');
-      return;
+      if (userCredential.user != null) {
+        // Send data to PreInputPage
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PreInputPage(
+              username: username,
+              email: email,
+              password: password,
+              phone: phone,
+            ),
+          ),
+        );
+
+        // When PreInputPage returns, handle the result
+        if (result != null) {
+          // Use the returned data from PreInputPage (e.g., save to Firebase)
+          DatabaseReference dbRef = FirebaseDatabase.instance.ref('users/${userCredential.user!.uid}');
+          dbRef.set({
+            'username': result['username'],
+            'email': result['email'],
+            'phone': result['phone'],
+            'last_month': result['last_month'],
+            'last_2_month': result['last_2_month'],
+            'last_3_month': result['last_3_month'],
+            'water_type': result['water_type'],
+            'cost': result['cost'],
+            'record_bill': result['record_bill'],
+            'think_waste': result['think_waste'],
+          });
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        _showAlert('The password is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        _showAlert('The email is already in use.');
+      }
+    } catch (e) {
+      _showAlert('An error occurred. Please try again later.');
     }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PreInputPage(
-          username: username,
-          email: email,
-          password: password,
-          phone: phone,
-        ),
-      ),
-    );
   }
 
   void _showAlert(String message) {
