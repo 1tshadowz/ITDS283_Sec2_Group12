@@ -21,9 +21,9 @@ class _ProductPageState extends State<ProductPage> {
 
   // รายการภาพแบนเนอร์ (URL จากอินเทอร์เน็ต)
   final List<String> bannerImages = [
-    'https://sdmntprwestus.oaiusercontent.com/files/00000000-a1ac-6230-9ad9-a3c7290aaa6e/raw?se=2025-04-17T20%3A01%3A53Z&sp=r&sv=2024-08-04&sr=b&scid=9d4a3997-e4bf-5051-81de-0e9061450bb5&skoid=51916beb-8d6a-49b8-8b29-ca48ed86557e&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-04-16T23%3A30%3A50Z&ske=2025-04-17T23%3A30%3A50Z&sks=b&skv=2024-08-04&sig=8uGw2M7VSDQ95xZgz4f04lnrzcVSsQTlM2UUiLWuZ2g%3D',
-    'https://sdmntprwestus.oaiusercontent.com/files/00000000-95f4-6230-90bc-62e0cae7dc33/raw?se=2025-04-17T20%3A03%3A51Z&sp=r&sv=2024-08-04&sr=b&scid=4fc67413-2205-53e1-adee-eb39eec320f6&skoid=51916beb-8d6a-49b8-8b29-ca48ed86557e&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-04-16T21%3A26%3A00Z&ske=2025-04-17T21%3A26%3A00Z&sks=b&skv=2024-08-04&sig=%2B1sw8NgvrLJBnVe2t5AP6%2BmmBJjkoAP8Cfko751sHgg%3D',
-    'https://sdmntprwestus.oaiusercontent.com/files/00000000-d118-6230-8d63-e4cae4951061/raw?se=2025-04-17T20%3A08%3A04Z&sp=r&sv=2024-08-04&sr=b&scid=501e1b9a-708f-5373-8491-3c0cef8621d9&skoid=51916beb-8d6a-49b8-8b29-ca48ed86557e&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-04-16T21%3A27%3A56Z&ske=2025-04-17T21%3A27%3A56Z&sks=b&skv=2024-08-04&sig=hH8m4mbu5vEcS9x6kVbY2dZnXJXf0VU33qbISKs%2BRyY%3D',
+    'https://i.imgur.com/95w0GAh.png',
+    'https://i.imgur.com/X6PWoQ9.png',
+    'https://i.imgur.com/SBi3ZZg.png',
   ];
 
   // รายการลิงก์ที่ต้องการให้เปิดเมื่อคลิกที่แต่ละแบนเนอร์
