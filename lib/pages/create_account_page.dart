@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'preinput_page.dart';
+import 'preinput_page.dart';  // ใช้สำหรับนำผู้ใช้ไปหน้า LoginPage
 
 class CreateAccountPage extends StatefulWidget {
   const CreateAccountPage({super.key});
@@ -48,9 +48,23 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
         password: password,
       );
 
+      // If registration is successful, save the user data to Firebase Realtime Database
       if (userCredential.user != null) {
-        // Send data to PreInputPage
-        final result = await Navigator.push(
+        DatabaseReference dbRef = FirebaseDatabase.instance.ref('users/${userCredential.user!.uid}');
+        dbRef.set({
+          'username': username,
+          'email': email,
+          'phone': phone,
+        });
+
+        // After saving user data, now login the user
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        // Navigate to PreInputPage after successful login
+        Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => PreInputPage(
@@ -61,24 +75,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
             ),
           ),
         );
-
-        // When PreInputPage returns, handle the result
-        if (result != null) {
-          // Use the returned data from PreInputPage (e.g., save to Firebase)
-          DatabaseReference dbRef = FirebaseDatabase.instance.ref('users/${userCredential.user!.uid}');
-          dbRef.set({
-            'username': result['username'],
-            'email': result['email'],
-            'phone': result['phone'],
-            'last_month': result['last_month'],
-            'last_2_month': result['last_2_month'],
-            'last_3_month': result['last_3_month'],
-            'water_type': result['water_type'],
-            'cost': result['cost'],
-            'record_bill': result['record_bill'],
-            'think_waste': result['think_waste'],
-          });
-        }
+      } else {
+        _showAlert('Failed to create user');
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -125,7 +123,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8CBAB7), padding: const EdgeInsets.symmetric(vertical: 16)),
                 onPressed: _goToPreInput,
-                child: const Text('NEXT', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                child: const Text('CREATE ACCOUNT', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 10),
               Center(

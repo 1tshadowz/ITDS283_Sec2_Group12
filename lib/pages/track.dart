@@ -116,11 +116,6 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF9ED3D5),
-      appBar: AppBar(
-        title: const Text("Track Water"),
-        backgroundColor: const Color(0xFF9ED3D5),
-        elevation: 0,
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           // SingleChildScrollView ช่วยให้กรณีคีย์บอร์ดเปิดแล้วหน้าเลื่อนได้

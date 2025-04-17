@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'login.dart';
-import '../db/db_helper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'login.dart';  // ใช้สำหรับนำผู้ใช้ไปหน้า LoginPage
 
 class PreInputPage extends StatefulWidget {
   final String username;
@@ -45,8 +46,50 @@ class _PreInputPageState extends State<PreInputPage> {
       'think_waste': isChecked2 ? 1 : 0,
     };
 
-    // ส่งข้อมูลกลับไปยัง CreateAccountPage
-    Navigator.pop(context, result);  // ส่งข้อมูลกลับไป
+    try {
+      // Get current user from Firebase Authentication
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        // Reference to Firebase Realtime Database
+        DatabaseReference dbRef = FirebaseDatabase.instance.ref('users/${user.uid}');
+
+        // Save the additional user data into Firebase Realtime Database
+        await dbRef.set(result);
+
+        // Show success message
+        _showAlert('Your information has been saved successfully!', true);
+      }
+    } catch (e) {
+      // Handle any errors during the saving process
+      _showAlert('An error occurred while saving data: $e', false);
+    }
+  }
+
+  void _showAlert(String message, bool success) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Notification'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              if (success) {
+                // After success, navigate to LoginPage
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                  (route) => false,  // Prevent user from going back
+                );
+              }
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -84,13 +127,13 @@ class _PreInputPageState extends State<PreInputPage> {
               const SizedBox(height: 10),
               CheckboxListTile(
                 controlAffinity: ListTileControlAffinity.leading,
-                title: const Text("Have you ever record your Bill"),
+                title: const Text("Have you ever recorded your Bill?"),
                 value: isChecked1,
                 onChanged: (value) => setState(() => isChecked1 = value!),
               ),
               CheckboxListTile(
                 controlAffinity: ListTileControlAffinity.leading,
-                title: const Text("Press me, If you think you waste water!"),
+                title: const Text("Do you think you waste water?"),
                 value: isChecked2,
                 onChanged: (value) => setState(() => isChecked2 = value!),
               ),
@@ -100,9 +143,9 @@ class _PreInputPageState extends State<PreInputPage> {
                   backgroundColor: const Color(0xFF8CBAB7),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                onPressed: _submitData,  // เมื่อกดปุ่ม จะส่งข้อมูลกลับไปที่ CreateAccountPage
+                onPressed: _submitData,  // เมื่อกดปุ่ม จะส่งข้อมูลไปที่ Firebase
                 child: const Text(
-                  'Create an Account',
+                  'Submit Information',
                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                 ),
               ),

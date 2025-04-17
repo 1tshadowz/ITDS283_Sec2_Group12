@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth Import
+import 'package:firebase_database/firebase_database.dart'; // Firebase Database Import
 import 'create_account_page.dart';
-import 'dashboard.dart';
-import '../db/db_helper.dart';
+import 'dashboard.dart';  // หน้า Dashboard ที่จะไปหลังจาก Login สำเร็จ
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,17 +17,28 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
 
   Future<void> _login() async {
-    final db = await DatabaseHelper.instance.database;
-    String email = _emailController.text.trim();
-    String password = _passwordController.text.trim();
+  String email = _emailController.text.trim();
+  String password = _passwordController.text.trim();
 
-    final users = await db.query(
-      'users',
-      where: 'email = ? AND password = ?',
-      whereArgs: [email, password],
+  // Print email and password to check what's entered
+  print("Email: $email");
+  print("Password: $password");
+
+  if (email.isEmpty || password.isEmpty) {
+    _showAlert("Please fill in both fields.");
+    return;
+  }
+
+  try {
+    // Attempt to log in with Firebase Authentication
+    UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: password,
     );
 
-    if (users.isNotEmpty) {
+    // Check if user is successfully logged in
+    if (userCredential.user != null) {
+      // Navigate to DashboardPage after successful login
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const DashboardPage()),
@@ -33,7 +46,17 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       _showAlert("Incorrect email or password.");
     }
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'user-not-found') {
+      _showAlert("No user found for that email.");
+    } else if (e.code == 'wrong-password') {
+      _showAlert("Wrong password provided for that user.");
+    } else {
+      _showAlert("An error occurred. Please try again.");
+    }
   }
+}
+
 
   void _showAlert(String message) {
     showDialog(
@@ -60,7 +83,11 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 children: [
                   const SizedBox(height: 40),
-                  const Text("Step in and start your\njourney with Us!", textAlign: TextAlign.center, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                  const Text(
+                    "Step in and start your\njourney with Us!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 40),
                   const Align(alignment: Alignment.centerLeft, child: Text("Email")),
                   const SizedBox(height: 6),

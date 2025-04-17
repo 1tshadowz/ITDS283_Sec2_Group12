@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart'; // Import Firebase
-import 'pages/login.dart';
-//เอาไว้ฝาก code db
+import '/pages/login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Login',
-      home: const LoginPage(), // Updated class name
+      home: const LoginPage(),
       debugShowCheckedModeBanner: false,
     );
   }

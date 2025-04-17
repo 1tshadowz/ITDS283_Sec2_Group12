@@ -113,7 +113,7 @@ class _ActivityPageState extends State<ActivityPage> {
                     ActivityCard(label: "Drinking", progress: 5203, goal: 10000, emoji: "🧑‍⚕️"),
                     ActivityCard(label: "Showering", progress: 4636, goal: 10000, emoji: "🚿"),
                     ActivityCard(label: "Cooking", progress: 3000, goal: 10000, emoji: "🧑‍🍳"),
-                    ActivityCard(label: "Watering the Plant", progress: 2000, goal: 10000, emoji: "🌱"),
+                    ActivityCard(label: "Watering Plant", progress: 2000, goal: 10000, emoji: "🌱"),
                   ],
                 ),
               ),
