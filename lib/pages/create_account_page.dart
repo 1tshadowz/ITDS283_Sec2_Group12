@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'preinput_page.dart';
-import '../db/db_helper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore Import
+import 'preinput_page.dart'; // ใช้สำหรับนำผู้ใช้ไปหน้า PreInputPage
 
 class CreateAccountPage extends StatefulWidget {
   const CreateAccountPage({super.key});
@@ -16,9 +17,12 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   final _confirmPasswordController = TextEditingController();
   final _phoneController = TextEditingController();
 
-  Future<void> _goToPreInput() async {
-    final db = await DatabaseHelper.instance.database;
+  @override
+  void initState() {
+    super.initState();
+  }
 
+  Future<void> _goToPreInput() async {
     String username = _usernameController.text.trim();
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
@@ -35,28 +39,48 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       return;
     }
 
-    final existing = await db.query(
-      'users',
-      where: 'email = ?',
-      whereArgs: [email],
-    );
+    try {
+      // Create a new user using Firebase Auth
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    if (existing.isNotEmpty) {
-      _showAlert('Email already exists!');
-      return;
+      // If registration is successful, save the user data to Firestore
+      if (userCredential.user != null) {
+        // Save user data to Firestore
+        await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+          'username': username,
+          'email': email,
+          'phone': phone,
+          // Don't store password in Firestore directly, only for demonstration
+          'password': password,
+        });
+
+        // After saving user data, navigate to PreInputPage
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PreInputPage(
+              username: username,
+              email: email,
+              password: password,
+              phone: phone,
+            ),
+          ),
+        );
+      } else {
+        _showAlert('Failed to create user');
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        _showAlert('The password is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        _showAlert('The email is already in use.');
+      }
+    } catch (e) {
+      _showAlert('An error occurred. Please try again later.');
     }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PreInputPage(
-          username: username,
-          email: email,
-          password: password,
-          phone: phone,
-        ),
-      ),
-    );
   }
 
   void _showAlert(String message) {
@@ -93,7 +117,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8CBAB7), padding: const EdgeInsets.symmetric(vertical: 16)),
                 onPressed: _goToPreInput,
-                child: const Text('NEXT', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                child: const Text('CREATE ACCOUNT', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 10),
               Center(
@@ -102,8 +126,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                   child: const Text.rich(
                     TextSpan(text: 'Already have an account? ', children: [
                       TextSpan(text: 'Login', style: TextStyle(color: Color(0xFF8CBAB7), fontWeight: FontWeight.bold)),
-                    ]),
-                  ),
+                    ])),
                 ),
               )
             ],

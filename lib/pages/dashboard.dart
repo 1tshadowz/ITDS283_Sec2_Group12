@@ -160,8 +160,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ),
                 Container(
-                  width: double.infinity,
-                  height: 180,
+                  width: 400,
+                  height: 180, // กำหนดความสูงที่แน่นอน
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(16),
@@ -177,9 +177,14 @@ class _DashboardPageState extends State<DashboardPage> {
                         ), // Navigate to NewsPage
                       );
                     },
-                    child: const Text(
-                      "News Image Placeholder",
-                      style: TextStyle(color: Colors.grey),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16), // ทำให้ขอบมน
+                      child: Image.network(
+                        'https://i.imgur.com/1R6n3WB.png',
+                        fit: BoxFit.cover, // ใช้ BoxFit.cover ให้ภาพเต็มพื้นที่
+                        width: 400,
+                        height: 180, // ปรับให้เหมาะสม
+                      ),
                     ),
                   ),
                 ),

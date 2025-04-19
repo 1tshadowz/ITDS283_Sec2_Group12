@@ -16,7 +16,7 @@ class NewsPage extends StatefulWidget {
 }
 
 class _NewsPageState extends State<NewsPage> {
-  int selectedIndex = 4;
+  int selectedIndex = 5;
   late PageController _pageControllerTop;
   late PageController _pageControllerBottom;
   Timer? _timer;
@@ -94,42 +94,35 @@ class _NewsPageState extends State<NewsPage> {
   }
 
   @override
-  void dispose() {
-    _timer?.cancel();
-    _pageControllerTop.dispose();
-    _pageControllerBottom.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF8ECAC4),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF8ECAC4),
-        elevation: 0,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.settings, color: Colors.white, size: 28),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SettingPage()),
-                );
-              },
-            ),
-            const Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: const Color(0xFF8ECAC4),
+    body: SafeArea(  // ใช้ SafeArea เพื่อให้เนื้อหาภายในไม่ทับกับพื้นที่ส่วนบนและล่าง
+      child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // ข้อมูลที่เคยอยู่ใน AppBar ตอนนี้อยู่ที่นี่
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.settings, color: Colors.white, size: 28),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SettingPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  const Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
+                ],
+              ),
+              const SizedBox(height: 20),
               // เพิ่ม 2 ปุ่มที่สามารถกดได้ (Events และ Workshop)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20),
@@ -206,12 +199,14 @@ class _NewsPageState extends State<NewsPage> {
           ),
         ),
       ),
-      bottomNavigationBar: _CustomBottomNavBar(
-        selectedIndex: selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
-    );
-  }
+    ),
+    bottomNavigationBar: _CustomBottomNavBar(
+      selectedIndex: selectedIndex,
+      onItemTapped: _onItemTapped,
+    ),
+  );
+}
+
 
   // ฟังก์ชันสร้างปุ่มที่สามารถกดได้
   Widget _buildClickableButton(String label, String url) {

@@ -7,7 +7,6 @@ import 'dashboard.dart';
 import 'achievement.dart';
 import 'setting.dart';
 
-
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key});
 
@@ -22,39 +21,19 @@ class _ProductPageState extends State<ProductPage> {
 
   // รายการภาพแบนเนอร์ (URL จากอินเทอร์เน็ต)
   final List<String> bannerImages = [
-    'https://www.baankrongnam.com/uploads/products/5/510/5ef163e5cf18d6b562d236a1a25a7b77.jpg',
-    'https://fastly.picsum.photos/id/9/5000/3269.jpg?hmac=cZKbaLeduq7rNB8X-bigYO8bvPIWtT-mh8GRXtU3vPc',
-    'https://fastly.picsum.photos/id/11/2500/1667.jpg?hmac=xxjFJtAPgshYkysU_aqx2sZir-kIOjNR9vx0te7GycQ',
+    'https://scontent.fkdt1-1.fna.fbcdn.net/v/t39.30808-6/336042403_887436202564810_1331039537008241797_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=28-vB5WbaWIQ7kNvwH6XSnZ&_nc_oc=AdnYGjXNmwpSa39srvI5FaOFX2-fetQ7BesGbuGuAQ24JLxNgrXGHHL74I2cakXyGOZHWhvd4DREr9lZPATu22fA&_nc_zt=23&_nc_ht=scontent.fkdt1-1.fna&_nc_gid=Pffe7EfNvByWDkg_bvMNUQ&oh=00_AfGUjGnJjCF2fkY4HZKCR5DqAJ1YAJgOsYDllr5-O4w9oQ&oe=68084E88',
+    'https://vulcanpost.com/wp-content/uploads/2024/05/anywheel-singapore-1024x533.jpg',
+    'https://i.imgur.com/SBi3ZZg.png',
   ];
 
   // รายการลิงก์ที่ต้องการให้เปิดเมื่อคลิกที่แต่ละแบนเนอร์
   final List<String> bannerLinks = [
-    'https://www.baankrongnam.com/product/ro-rain-1', // ลิงก์สำหรับแบนเนอร์ที่ 1
-    'https://www.google.com', // ลิงก์สำหรับแบนเนอร์ที่ 2
-    'https://www.example3.com', // ลิงก์สำหรับแบนเนอร์ที่ 3
+    'https://g.co/kgs/qJTNcHs', // ลิงก์สำหรับแบนเนอร์ที่ 1
+    'https://www.anywheel.co.th/', // ลิงก์สำหรับแบนเนอร์ที่ 2
+    'https://www.pwa.co.th/contents/service', // ลิงก์สำหรับแบนเนอร์ที่ 3
   ];
 
-  // Dummy data สำหรับ search (Product & Service ที่เกี่ยวกับการลดการใช้น้ำ)
-  final List<String> allProducts = [
-    "Water Saving Kit",
-    "Efficient Shower Head",
-    "Low Flow Faucet",
-    "Rainwater Harvesting System",
-    "Water Filter",
-    "Eco-friendly Toilet",
-    "Solar Water Heater",
-  ];
   String searchQuery = "";
-
-  List<String> get filteredProducts {
-    if (searchQuery.isEmpty) {
-      return [];
-    }
-    return allProducts
-        .where((product) =>
-            product.toLowerCase().contains(searchQuery.toLowerCase()))
-        .toList();
-  }
 
   @override
   void initState() {
@@ -85,9 +64,9 @@ class _ProductPageState extends State<ProductPage> {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Couldn't open the link: $url")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Couldn't open the link: $url")));
     }
   }
 
@@ -121,7 +100,8 @@ class _ProductPageState extends State<ProductPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (_) => const AchievementPage(title: "Achievements")),
+          builder: (_) => const AchievementPage(title: "Achievements"),
+        ),
       );
     } else if (index == 4) {
       // Already on ProductPage
@@ -132,136 +112,176 @@ class _ProductPageState extends State<ProductPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF8ECAC4),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF8ECAC4),
-        elevation: 0,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              icon:
-                  const Icon(Icons.settings, color: Colors.white, size: 28),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SettingPage()),
-                );
-              },
-            ),
-            const Icon(
-              Icons.account_circle_outlined,
-              color: Colors.white,
-              size: 30,
-            ),
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Search Bar
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12.withOpacity(0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  onChanged: (value) {
-                    setState(() {
-                      searchQuery = value;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    hintText: "Search Products & Services",
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              // ปุ่มค้นหา (Custom Internet Search)
-              if (searchQuery.isNotEmpty)
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // แก้ไขปุ่ม Setting และ Profile ให้อยู่ใน Row
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: ElevatedButton(
-                    onPressed: performSearch,
-                    child: Text("ค้นหา: $searchQuery"),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.settings,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SettingPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      const Icon(
+                        Icons.account_circle_outlined,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ],
                   ),
                 ),
-              const SizedBox(height: 50),
-              // Banner ที่เลื่อนสลับไปมาแบบ infinite loop
-              SizedBox(
-                height: 150,
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: null,
-                  itemBuilder: (context, index) {
-                    int displayIndex = index % bannerImages.length;
-                    String bannerUrl = bannerImages[displayIndex];
-                    String bannerLink = bannerLinks[displayIndex];
+                const SizedBox(height: 20),
+                // Search Bar
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12.withOpacity(0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        searchQuery = value;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      hintText: "Search Products & Services",
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // ปุ่มค้นหา (Custom Internet Search)
+                if (searchQuery.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: ElevatedButton(
+                      onPressed: performSearch,
+                      child: Text("ค้นหา: $searchQuery"),
+                    ),
+                  ),
+                const SizedBox(height: 50),
+                // Banner ที่เลื่อนสลับไปมาแบบ infinite loop
+                SizedBox(
+                  height: 150,
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: null,
+                    itemBuilder: (context, index) {
+                      int displayIndex = index % bannerImages.length;
+                      String bannerUrl = bannerImages[displayIndex];
+                      String bannerLink = bannerLinks[displayIndex];
 
-                    return Center(
-                      child: GestureDetector(
-                        onTap: () async {
-                          await openUrl(bannerLink);
-                        },
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.network(
-                            bannerUrl,
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            fit: BoxFit.cover,
+                      return Center(
+                        child: GestureDetector(
+                          onTap: () async {
+                            await openUrl(bannerLink);
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.network(
+                              bannerUrl,
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 50),
+                // กล่องไอคอน
+                Padding(
+                  padding: const EdgeInsets.symmetric(),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildIconBox(
+                        Icons.local_drink,
+                        "Glass",
+                        Colors.orange,
+                        'https://www.google.com/search?q=Eco-friendly+glass',
                       ),
-                    );
-                  },
+                      _buildIconBox(
+                        Icons.local_cafe,
+                        "Cafe",
+                        Colors.brown,
+                        'https://www.google.com/search?q=Eco-friendly+cafe',
+                      ),
+                      _buildIconBox(
+                        Icons.shopping_bag,
+                        "Bag",
+                        Colors.blue,
+                        'https://www.google.com/search?q=Eco-friendly+bag',
+                      ),
+                      _buildIconBox(
+                        Icons.shower,
+                        "Shower",
+                        Colors.cyan,
+                        'https://www.google.com/search?q=Eco-friendly+shower',
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 50),
-              // กล่องไอคอน
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildIconBox(Icons.local_drink, "Glass", Colors.orange),
-                    _buildIconBox(Icons.local_cafe, "Cafe", Colors.brown),
-                    _buildIconBox(Icons.shopping_bag, "Bag", Colors.blue),
-                    _buildIconBox(Icons.shower, "Shower", Colors.cyan),
-                  ],
+                const SizedBox(height: 50),
+                // แถวของภาพสินค้า
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildProductImage(
+                        "Image 1",
+                        'https://i.imgur.com/95w0GAh.png', // ลิงก์ของภาพ
+                        'https://www.google.com/search?q=Eco-friendly+glass', // ลิงก์ที่จะเปิดเมื่อคลิก
+                      ),
+                      const SizedBox(width: 16),
+                      _buildProductImage(
+                        "Image 2",
+                        'https://i.imgur.com/SrFt44F.png', // ลิงก์ของภาพ
+                        'https://www.google.com/search?q=Eco-friendly+bottle', // ลิงก์ที่จะเปิดเมื่อคลิก
+                      ),
+                      const SizedBox(width: 16),
+                      _buildProductImage(
+                        "Image 3",
+                        'https://i.imgur.com/QFrSI3E.png', // ลิงก์ของภาพ
+                        'https://www.google.com/search?q=Eco-friendly+lunchbox', // ลิงก์ที่จะเปิดเมื่อคลิก
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 50),
-              // แถวของภาพสินค้า
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildProductImage("Image 1"),
-                    const SizedBox(width: 16),
-                    _buildProductImage("Image 2"),
-                    const SizedBox(width: 16),
-                    _buildProductImage("Image 3"),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
+
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),
@@ -273,12 +293,10 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   // ฟังก์ชันสร้างกล่องไอคอนที่สามารถคลิกได้
-  Widget _buildIconBox(IconData icon, String label, Color color) {
+  Widget _buildIconBox(IconData icon, String label, Color color, String url) {
     return InkWell(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("$label clicked")),
-        );
+      onTap: () async {
+        await openUrl(url); // เปิดลิงก์เมื่อคลิกที่ไอคอน
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -305,18 +323,24 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   // ฟังก์ชันสร้าง widget สำหรับผลิตภัณฑ์ (สินค้าคลิกได้)
-  Widget _buildProductImage(String label) {
+  Widget _buildProductImage(String label, String imageUrl, String linkUrl) {
     return InkWell(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("$label clicked")),
-        );
+      onTap: () async {
+        await openUrl(linkUrl); // เมื่อคลิกที่ภาพ จะเปิดลิงก์ที่กำหนด
       },
       child: Container(
         color: Colors.grey[300],
         width: 150,
         height: 150,
-        child: Center(child: Text(label)),
+        child: Center(
+          child: Image.network(
+            // ใช้ Image.network เพื่อแสดงภาพจาก URL
+            imageUrl, // ลิงก์ของภาพที่ต้องการแสดง
+            width: double.infinity,  // ใช้ความกว้างของ Container เต็ม
+            height: double.infinity,  // ใช้ความสูงของ Container เต็ม
+            fit: BoxFit.cover, // ทำให้ภาพเต็มพื้นที่โดยไม่ตัดภาพ
+          ),
+        ),
       ),
     );
   }
@@ -352,18 +376,19 @@ class _CustomBottomNavBar extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: icons.asMap().entries.map((entry) {
-          int idx = entry.key;
-          IconData icon = entry.value;
-          return IconButton(
-            icon: Icon(
-              icon,
-              size: 28,
-              color: selectedIndex == idx ? Colors.black : Colors.grey,
-            ),
-            onPressed: () => onItemTapped(idx),
-          );
-        }).toList(),
+        children:
+            icons.asMap().entries.map((entry) {
+              int idx = entry.key;
+              IconData icon = entry.value;
+              return IconButton(
+                icon: Icon(
+                  icon,
+                  size: 28,
+                  color: selectedIndex == idx ? Colors.black : Colors.grey,
+                ),
+                onPressed: () => onItemTapped(idx),
+              );
+            }).toList(),
       ),
     );
   }
