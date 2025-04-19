@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
+import 'package:intl/intl.dart';
+import '../db/db_helper.dart';
 import 'track.dart';
 import 'dashboard.dart';
 import 'achievement.dart';
@@ -13,36 +16,53 @@ class ActivityPage extends StatefulWidget {
 }
 
 class _ActivityPageState extends State<ActivityPage> {
-  int selectedIndex = 1; // Activity is index 1
+  int selectedIndex = 1;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  Map<String, dynamic> activityData = {
+    'drinking': 0,
+    'showering': 0,
+    'cooking': 0,
+    'planting': 0,
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDay = _focusedDay;
+    _loadDataForDate(_selectedDay!);
+  }
 
   void _onItemTapped(int index) {
-    if (index == selectedIndex) {
-      // Refresh the page if tapped again
-      setState(() {});
-      return;
-    }
+    if (index == selectedIndex) return;
 
     setState(() {
       selectedIndex = index;
     });
 
-    if (index == 0) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const TrackWaterPage()));
-    } else if (index == 2) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const DashboardPage()));
-    } else if (index == 3) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const AchievementPage(title: "Achievements")));
-    } else if (index == 4) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const ProductPage()));
+    switch (index) {
+      case 0:
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const TrackWaterPage()));
+        break;
+      case 2:
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DashboardPage()));
+        break;
+      case 3:
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AchievementPage(title: "Achievements")));
+        break;
+      case 4:
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ProductPage()));
+        break;
     }
+  }
+
+  Future<void> _loadDataForDate(DateTime date) async {
+    final String formatted = DateFormat('yyyy-MM-dd').format(date);
+    final data = await DatabaseHelper.instance.getDailySummaryByDate(formatted);
+
+    setState(() {
+      activityData = data;
+    });
   }
 
   @override
@@ -62,58 +82,51 @@ class _ActivityPageState extends State<ActivityPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-              icon: const Icon(Icons.settings, color: Colors.white, size: 28),
-              onPressed: () {
-                // Navigate to Settings Page
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SettingPage()), // Navigate to settings
-                );
-              },
-            ),
-                  Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
+                    icon: const Icon(Icons.settings, color: Colors.white, size: 28),
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingPage())),
+                  ),
+                  const Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               Container(
-                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: const Color(0xFFE9DCC7),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.blueAccent, width: 2),
                 ),
-                child: Column(
-                  children: [
-                    const Text(
-                      "Feb 2025",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Table(
-                      children: [
-                        _buildCalendarRow(["S", "M", "T", "W", "T", "F", "Sa"], bold: true),
-                        _buildCalendarRow(["", "", "", "", "", "", "1"]),
-                        _buildCalendarRow(["2", "3", "4", "5", "6", "7", "8"]),
-                        _buildCalendarRow(["9", "10", "11", "12", "13", "14", "15"]),
-                        _buildCalendarRow(["16", "17", "18", "19", "20", "21", "22"], highlight: "19"),
-                        _buildCalendarRow(["23", "24", "25", "26", "27", "28", ""]),
-                      ],
-                    ),
-                  ],
+                child: TableCalendar(
+                  firstDay: DateTime.utc(2024, 1, 1),
+                  lastDay: DateTime.utc(2030, 12, 31),
+                  focusedDay: _focusedDay,
+                  calendarFormat: CalendarFormat.month,
+                  selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                  onDaySelected: (selectedDay, focusedDay) {
+                    setState(() {
+                      _selectedDay = selectedDay;
+                      _focusedDay = focusedDay;
+                    });
+                    _loadDataForDate(selectedDay);
+                  },
+                  headerStyle: const HeaderStyle(formatButtonVisible: false, titleCentered: true),
+                  calendarStyle: const CalendarStyle(
+                    todayDecoration: BoxDecoration(color: Colors.teal, shape: BoxShape.circle),
+                    selectedDecoration: BoxDecoration(color: Colors.deepOrange, shape: BoxShape.circle),
+                  ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               Expanded(
                 child: GridView.count(
                   crossAxisCount: 2,
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
                   childAspectRatio: 1,
-                  children: const [
-                    ActivityCard(label: "Drinking", progress: 5203, goal: 10000, emoji: "🧑‍⚕️"),
-                    ActivityCard(label: "Showering", progress: 4636, goal: 10000, emoji: "🚿"),
-                    ActivityCard(label: "Cooking", progress: 3000, goal: 10000, emoji: "🧑‍🍳"),
-                    ActivityCard(label: "Watering Plant", progress: 2000, goal: 10000, emoji: "🌱"),
+                  children: [
+                    ActivityCard(label: "Drinking", progress: int.tryParse(activityData['drinking'].toString()) ?? 0, goal: 2, emoji: "🧑‍⚕️"),
+                    ActivityCard(label: "Showering", progress: int.tryParse(activityData['showering'].toString()) ?? 0, goal: 20, emoji: "🚿"),
+                    ActivityCard(label: "Cooking", progress: int.tryParse(activityData['cooking'].toString()) ?? 0, goal: 6, emoji: "🧑‍🍳"),
+                    ActivityCard(label: "Using Toilet", progress: int.tryParse(activityData['using toilet'].toString()) ?? 0, goal: 20, emoji: "🚽"),
                   ],
                 ),
               ),
@@ -121,31 +134,6 @@ class _ActivityPageState extends State<ActivityPage> {
           ),
         ),
       ),
-    );
-  }
-
-  TableRow _buildCalendarRow(List<String> days, {bool bold = false, String? highlight}) {
-    return TableRow(
-      children: days.map((day) {
-        bool isHighlight = day == highlight;
-        return Padding(
-          padding: const EdgeInsets.all(4),
-          child: Center(
-            child: CircleAvatar(
-              backgroundColor: isHighlight ? Colors.teal : Colors.transparent,
-              radius: 14,
-              child: Text(
-                day,
-                style: TextStyle(
-                  fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-                  color: isHighlight ? Colors.white : Colors.black,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
     );
   }
 }
@@ -174,7 +162,7 @@ class ActivityCard extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
@@ -216,10 +204,7 @@ class _CustomBottomNavBar extends StatelessWidget {
       height: 70,
       decoration: const BoxDecoration(
         color: Color(0xFFE9DCC7),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
-        ),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -227,11 +212,7 @@ class _CustomBottomNavBar extends StatelessWidget {
           int idx = entry.key;
           IconData icon = entry.value;
           return IconButton(
-            icon: Icon(
-              icon,
-              size: 28,
-              color: selectedIndex == idx ? Colors.black : Colors.grey,
-            ),
+            icon: Icon(icon, size: 28, color: selectedIndex == idx ? Colors.black : Colors.grey),
             onPressed: () => onItemTapped(idx),
           );
         }).toList(),
