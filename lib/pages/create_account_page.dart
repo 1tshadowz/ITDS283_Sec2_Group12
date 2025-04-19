@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'preinput_page.dart';  // ใช้สำหรับนำผู้ใช้ไปหน้า LoginPage
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore Import
+import 'preinput_page.dart'; // ใช้สำหรับนำผู้ใช้ไปหน้า PreInputPage
 
 class CreateAccountPage extends StatefulWidget {
   const CreateAccountPage({super.key});
@@ -21,7 +20,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   @override
   void initState() {
     super.initState();
-    Firebase.initializeApp();  // Ensure Firebase is initialized
   }
 
   Future<void> _goToPreInput() async {
@@ -48,22 +46,18 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
         password: password,
       );
 
-      // If registration is successful, save the user data to Firebase Realtime Database
+      // If registration is successful, save the user data to Firestore
       if (userCredential.user != null) {
-        DatabaseReference dbRef = FirebaseDatabase.instance.ref('users/${userCredential.user!.uid}');
-        dbRef.set({
+        // Save user data to Firestore
+        await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
           'username': username,
           'email': email,
           'phone': phone,
+          // Don't store password in Firestore directly, only for demonstration
+          'password': password,
         });
 
-        // After saving user data, now login the user
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-
-        // Navigate to PreInputPage after successful login
+        // After saving user data, navigate to PreInputPage
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -132,8 +126,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                   child: const Text.rich(
                     TextSpan(text: 'Already have an account? ', children: [
                       TextSpan(text: 'Login', style: TextStyle(color: Color(0xFF8CBAB7), fontWeight: FontWeight.bold)),
-                    ]),
-                  ),
+                    ])),
                 ),
               )
             ],

@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';  // เพิ่ม Firestore import
 import 'activity.dart';
 import 'dashboard.dart';
 import 'achievement.dart';
@@ -13,60 +16,17 @@ class TrackWaterPage extends StatefulWidget {
 }
 
 class _TrackWaterPageState extends State<TrackWaterPage> {
-  // รายการสำหรับ Dropdown ของแต่ละคำถาม
-  final List<String> _usageItems = [
-    'Select',
-    'Drinking',
-    'Showering',
-    'Cooking',
-    'Watering Plant',
-  ];
-  final List<String> _buildingTypeItems = ['Select', 'House', 'Condo'];
-  final List<String> _leakageItems = ['Select', 'Yes', 'No'];
-  final List<String> _satisfactionItems = ['Select', '1', '2', '3', '4', '5'];
-
+  final List<String> _timeOptions = ['Select', 'Quick', 'Medium', 'Long'];
   String? usage;
-  String? buildingType;
+  String? timeOption;
+  String? date;
   String? leakage;
-  String? satisfaction;
 
-  // สำหรับช่องกรอกตัวเลข
   final TextEditingController quantityController = TextEditingController();
   final TextEditingController perUnitController = TextEditingController();
+  final TextEditingController timeController = TextEditingController();
 
   int selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    if (index == selectedIndex) return;
-    setState(() {
-      selectedIndex = index;
-    });
-    if (index == 0) {
-      // อยู่ที่ Track page อยู่แล้ว
-    } else if (index == 1) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const ActivityPage()),
-      );
-    } else if (index == 2) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const DashboardPage()),
-      );
-    } else if (index == 3) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const AchievementPage(title: "Achievements"),
-        ),
-      );
-    } else if (index == 4) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const ProductPage()),
-      );
-    }
-  }
 
   // ฟังก์ชันสร้าง Dropdown ที่รับรายการ item เป็นพารามิเตอร์
   Widget buildDropdown(
@@ -112,106 +72,222 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
     );
   }
 
+  // ฟังก์ชันจัดการการคลิกบนเมนู bottom navigation
+  void _onItemTapped(int index) {
+    if (index == selectedIndex) return;
+    setState(() {
+      selectedIndex = index;
+    });
+    if (index == 0) {
+      // อยู่ที่ Track page อยู่แล้ว
+    } else if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const ActivityPage()),
+      );
+    } else if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const DashboardPage()),
+      );
+    } else if (index == 3) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const AchievementPage(title: "Achievements"),
+        ),
+      );
+    } else if (index == 4) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const ProductPage()),
+      );
+    }
+  }
+
+  // ฟังก์ชันสำหรับเลือกวันที่
+  Future<void> _selectDate() async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (pickedDate != null) {
+      setState(() {
+        date = "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+      });
+    }
+  }
+
+  // ฟังก์ชันเพื่อบันทึกข้อมูลลง Firestore
+Future<void> _submitData() async {
+  // Get current user from Firebase Authentication
+  User? user = FirebaseAuth.instance.currentUser;
+
+  if (user != null) {
+    try {
+      // Get a reference to the Firestore document for the user's water usage data
+      DocumentReference ref = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('track_usage')  // Create a subcollection for each user
+          .doc();  // Auto-generated document ID
+
+      // Prepare the data
+      await ref.set({
+        'usage': usage,
+        'time_option': timeOption,
+        'quantity': quantityController.text,
+        'unit_cost': perUnitController.text,
+        'leakage': leakage,
+        'date': date,
+      });
+
+      // Show a success alert and navigate to DashboardPage
+      _showAlert('Data saved successfully!', true);
+    } catch (e) {
+      // Handle errors
+      _showAlert('Failed to save data: $e', false);
+    }
+  }
+}
+
+  // ฟังก์ชันแสดง alert
+void _showAlert(String message, bool success) {
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('Notification'),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+            if (success) {
+              // After success, navigate to DashboardPage
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const DashboardPage()),
+              );
+            }
+          },
+          child: const Text('OK'),
+        ),
+      ],
+    ),
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF9ED3D5),
+      backgroundColor: const Color(0xFF8ECAC4),
       body: SafeArea(
         child: SingleChildScrollView(
-          // SingleChildScrollView ช่วยให้กรณีคีย์บอร์ดเปิดแล้วหน้าเลื่อนได้
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                   children: [
-            IconButton(
-              icon: const Icon(Icons.settings, color: Colors.white, size: 28),
-              onPressed: () {
-                // Navigate to Settings Page
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SettingPage()), // Navigate to settings
-                );
-              },
-            ),
-            const Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
-          ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.settings,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SettingPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      const Icon(
+                        Icons.account_circle_outlined,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 20),
-                // What you use water for?
+                const Text(
+                  "Track your water usage",
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 20),
                 buildDropdown(
                   "What you use water for?",
                   usage,
-                  _usageItems,
-                  (val) => setState(() => usage = val),
+                  ['Drinking', 'Showering', 'Cooking', 'Toilet'],
+                  (val) {
+                    setState(() {
+                      usage = val;
+                      // Clear related fields when a new usage type is selected
+                      if (usage == 'Drinking') {
+                        timeOption = null;
+                        leakage = null;
+                      }
+                    });
+                  },
                 ),
-                // Which type of your building?
-                buildDropdown(
-                  "Which type of your building?",
-                  buildingType,
-                  _buildingTypeItems,
-                  (val) => setState(() => buildingType = val),
-                ),
-                // ถ้า usage ไม่เท่ากับ "Cooking" จะแสดงช่องกรอกตัวเลข
-                if (usage != "Cooking") ...[
-                  buildNumberField("Used water quantity", quantityController),
+                if (usage == 'Showering') ...[
+                  buildDropdown(
+                    "Select your shower time",
+                    timeOption,
+                    _timeOptions,
+                    (val) => setState(() => timeOption = val),
+                  ),
+                ] else if (usage == 'Drinking') ...[
                   buildNumberField(
-                    "How about water per Units (price per unit)",
-                    perUnitController,
+                    "How many glasses of water?",
+                    quantityController,
                   ),
                 ],
-                // Did you notice any leaking taps or pipes?
-                buildDropdown(
-                  "Did you notice any leaking taps or pipes?",
-                  leakage,
-                  _leakageItems,
-                  (val) => setState(() => leakage = val),
-                ),
-                // How satisfied are you with your current water usage habits?
-                buildDropdown(
-                  "How satisfied are you with your current water usage habits?",
-                  satisfaction,
-                  _satisfactionItems,
-                  (val) => setState(() => satisfaction = val),
-                ),
-                const SizedBox(height: 20),
-                // Confirm button
-                // ElevatedButton เป็นปุ่มที่มีการยกตัวขึ้นเมื่อกด
-                ElevatedButton(
-                  // Handle submission here
-                // สามารถนำข้อมูลจากตัวแปร (usage, buildingType, quantityController.text, perUnitController.text, leakage, satisfaction)
-                // ไปประมวลผลหรือต่อการแสดงผลได้ตามต้องการ
-                  onPressed: () {
-                    // แสดง AlertDialog หลังจากกด Confirm
-                    showDialog(
-                      context: context,
-                      builder:
-                          (context) => AlertDialog(
-                            title: const Text("Update Success"),
-                            content: const Text(
-                              "Data updated successfully.\n(Note: No real data submission has been made.)",
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  // ปิด AlertDialog
-                                  Navigator.pop(context);
-                                  // นำไปยังหน้า ActivityPage
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const ActivityPage(),
-                                    ),
-                                  );
-                                },
-                                child: const Text("OK"),
-                              ),
-                            ],
+                GestureDetector(
+                  onTap: _selectDate,
+                  child: Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            date ?? 'Select Date',
+                            style: const TextStyle(fontSize: 16),
                           ),
-                    );
-                  },
+                        ),
+                        const Icon(Icons.calendar_today),
+                      ],
+                    ),
+                  ),
+                ),
+                if (usage != null && usage != 'Drinking') ...[
+                  buildDropdown(
+                    "Did you notice any leaking taps or pipes?",
+                    leakage,
+                    ['Yes', 'No'],
+                    (val) => setState(() => leakage = val),
+                  ),
+                ],
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: _submitData,  // Save data to Firestore when the user confirms
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFA5E6A0),
                     shape: RoundedRectangleBorder(
@@ -236,6 +312,7 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
     );
   }
 }
+
 
 class _CustomBottomNavBar extends StatelessWidget {
   final int selectedIndex;

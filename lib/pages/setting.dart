@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'track.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // เพิ่ม Firestore import
 import 'activity.dart';
 import 'dashboard.dart';
+import 'achievement.dart';
 import 'products.dart';
+import 'track.dart';
+import 'login.dart'; // เพิ่ม LoginPage เพื่อใช้การนำทางไปยังหน้าล็อกอิน
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -12,21 +16,116 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  int selectedIndex = 5; // Custom index for settings if needed
+  int selectedIndex = 5;
 
-  // Text controllers for the fields
   TextEditingController usernameController = TextEditingController();
   TextEditingController oldPasswordController = TextEditingController();
   TextEditingController newPasswordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
 
+  User? user;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // ตรวจสอบผู้ใช้ที่ล็อกอิน
+    user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // โหลดข้อมูลจาก Firestore ไปยัง TextField
+      FirebaseFirestore.instance.collection('users').doc(user!.uid).get().then((
+        DocumentSnapshot snapshot,
+      ) {
+        if (snapshot.exists) {
+          var data = snapshot.data() as Map<String, dynamic>;
+          usernameController.text =
+              data['username'] ??
+              ''; // ใช้ข้อมูล username ที่ดึงมาจาก Firestore
+          phoneController.text = data['phone'] ?? '';
+        }
+      });
+    }
+  }
+
+  Future<void> _updateProfile() async {
+    // ตรวจสอบว่า ผู้ใช้ได้เข้าสู่ระบบหรือไม่
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      try {
+        // ขั้นตอนการ re-authenticate ก่อนทำการอัพเดตรหัสผ่าน
+        AuthCredential credential = EmailAuthProvider.credential(
+          email: user.email!,
+          password: oldPasswordController.text.trim(), // รหัสผ่านเก่า
+        );
+
+        // Re-authenticate user with their old password
+        await user.reauthenticateWithCredential(credential);
+
+        // อัพเดตข้อมูลใน Firestore
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({
+              'username': usernameController.text.trim(),
+              'phone': phoneController.text.trim(),
+            });
+
+        // ถ้าผู้ใช้กรอกรหัสผ่านใหม่ ให้ทำการเปลี่ยนรหัสผ่าน
+        if (newPasswordController.text.trim().isNotEmpty) {
+          await user.updatePassword(newPasswordController.text.trim());
+          FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+            'password': newPasswordController.text.trim(),
+          });
+           // อัพเดตรหัสผ่านใหม่
+        }
+
+        // นำทางไปที่ Dashboard หลังจากอัพเดตสำเร็จ
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const DashboardPage(),
+          ), // นำทางไปที่ Dashboard
+        );
+
+        // แจ้งเตือนผู้ใช้ว่าอัพเดตสำเร็จ
+        _showAlert('Profile updated successfully!');
+      } catch (e) {
+        // ถ้ามีข้อผิดพลาดในการอัพเดต
+        _showAlert('Failed to update profile: $e');
+      }
+    } else {
+      _showAlert('No user is currently signed in.');
+    }
+  }
+
+  // ฟังก์ชันแสดงการแจ้งเตือน
+  void _showAlert(String message) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Notification'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed:
+                    () => Navigator.of(context).pop(), // Close the alert dialog
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  // ฟังก์ชันจัดการการคลิกบนเมนู bottom navigation
   void _onItemTapped(int index) {
     if (index == selectedIndex) return;
-
     setState(() {
       selectedIndex = index;
     });
-
     if (index == 0) {
       Navigator.pushReplacement(
         context,
@@ -42,6 +141,13 @@ class _SettingPageState extends State<SettingPage> {
         context,
         MaterialPageRoute(builder: (_) => const DashboardPage()),
       );
+    } else if (index == 3) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const AchievementPage(title: "Achievements"),
+        ),
+      );
     } else if (index == 4) {
       Navigator.pushReplacement(
         context,
@@ -50,10 +156,24 @@ class _SettingPageState extends State<SettingPage> {
     }
   }
 
+  Future<void> _logout() async {
+    try {
+      await FirebaseAuth.instance.signOut(); // Logout from FirebaseAuth
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LoginPage(),
+        ), // Redirect to Login Page
+      );
+    } catch (e) {
+      _showAlert('Failed to log out: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF8ECAC4), // สีพื้นหลัง
+      backgroundColor: const Color(0xFF8ECAC4),
       appBar: AppBar(
         backgroundColor: const Color(0xFF8ECAC4),
         elevation: 0,
@@ -71,7 +191,6 @@ class _SettingPageState extends State<SettingPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // กรอบโปรไฟล์และช่องกรอกข้อมูลที่มีขอบมน
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -87,106 +206,118 @@ class _SettingPageState extends State<SettingPage> {
                 ),
                 child: Column(
                   children: [
-                    // ช่องรูปโปรไฟล์และปุ่มอัพเดท
                     Center(
                       child: GestureDetector(
                         onTap: () {
-                          // การอัพเดทโปรไฟล์
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text("อัพเดทโปรไฟล์")),
                           );
                         },
                         child: CircleAvatar(
                           radius: 70,
-                          backgroundColor: const Color.fromARGB(255, 255, 240, 205), // ขอบเหลือง
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            255,
+                            240,
+                            205,
+                          ),
                           child: CircleAvatar(
                             radius: 60,
-                            backgroundImage: const AssetImage('assets/images/profile.jpg'), // รูปโปรไฟล์
-                            child: const Icon(
-                              Icons.edit,
-                              color: Colors.white,
-                              size: 30,
+                            backgroundImage: NetworkImage(
+                              'https://i.imgur.com/SrFt44F.png',
                             ),
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      "Username", // ชื่อผู้ใช้
-                      style: TextStyle(
+                    Text(
+                      usernameController.text,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
                         color: Colors.teal,
                       ),
                     ),
                     const SizedBox(height: 10),
-
-                    // ช่องกรอกข้อมูล Username
                     _buildTextField(
                       label: "Username",
                       hintText: "Change Username",
                       controller: usernameController,
                       icon: Icons.edit,
-                      labelColor: Colors.teal, // เปลี่ยนสีข้อความ
+                      labelColor: Colors.teal,
                     ),
                     const SizedBox(height: 10),
-
-                    // ช่องกรอกข้อมูลรหัสผ่านเก่า
                     _buildTextField(
                       label: "Old Password",
                       hintText: "Enter Old Password",
                       controller: oldPasswordController,
                       icon: Icons.edit,
                       obscureText: true,
-                      labelColor: Colors.teal, // เปลี่ยนสีข้อความ
+                      labelColor: Colors.teal,
                     ),
                     const SizedBox(height: 10),
-
-                    // ช่องกรอกข้อมูลรหัสผ่านใหม่
                     _buildTextField(
                       label: "Change Password",
                       hintText: "Enter New Password",
                       controller: newPasswordController,
                       icon: Icons.edit,
                       obscureText: true,
-                      labelColor: Colors.teal, // เปลี่ยนสีข้อความ
+                      labelColor: Colors.teal,
                     ),
                     const SizedBox(height: 10),
-
-                    // ช่องกรอกข้อมูลหมายเลขโทรศัพท์
+                    _buildTextField(
+                      label: "Confirm Password",
+                      hintText: "Confirm New Password",
+                      controller: confirmPasswordController,
+                      icon: Icons.edit,
+                      obscureText: true,
+                      labelColor: Colors.teal,
+                    ),
+                    const SizedBox(height: 10),
                     _buildTextField(
                       label: "Telephone Number",
                       hintText: "Change Telephone Number",
                       controller: phoneController,
                       icon: Icons.edit,
-                      labelColor: Colors.teal, // เปลี่ยนสีข้อความ
+                      labelColor: Colors.teal,
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 30),
-
-              // ปุ่มยืนยันย้ายออกจากกล่องโปรไฟล์และตั้งให้ตรงกลาง
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
-                    // การยืนยันการเปลี่ยนแปลง
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Profile Updated")),
-                    );
-                  },
+                  onPressed: _updateProfile,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 190, 252, 191), // เปลี่ยนสีของกล่อง
+                    backgroundColor: const Color.fromARGB(255, 190, 252, 191),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    minimumSize: const Size(350, 50), // ขยายขนาดให้กว้างขึ้น
+                    minimumSize: const Size(350, 50),
                   ),
                   child: const Text(
                     "Confirm",
-                    style: TextStyle(fontSize: 18, color: Colors.black), // เปลี่ยนสีข้อความ
+                    style: TextStyle(fontSize: 18, color: Colors.black),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _logout,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 252, 194, 190),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    minimumSize: const Size(350, 50),
+                  ),
+                  child: const Text(
+                    "Logout",
+                    style: TextStyle(fontSize: 18, color: Colors.black),
                   ),
                 ),
               ),
@@ -201,31 +332,32 @@ class _SettingPageState extends State<SettingPage> {
     );
   }
 
-  // ฟังก์ชันสร้างกล่องไอคอนที่มีขอบมน
   Widget _buildTextField({
     required String label,
     required String hintText,
     required TextEditingController controller,
     required IconData icon,
     bool obscureText = false,
-    required Color labelColor, // รับค่า color ของ label
+    required Color labelColor,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ใส่คำอธิบายชื่อช่อง พร้อมสี
           Text(
             label,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: labelColor),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: labelColor,
+            ),
           ),
           const SizedBox(height: 10),
-          // ช่องกรอกข้อมูล
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.black), // ขอบสีดำ
+              border: Border.all(color: Colors.black),
             ),
             child: Row(
               children: [
@@ -236,18 +368,13 @@ class _SettingPageState extends State<SettingPage> {
                     decoration: InputDecoration(
                       hintText: hintText,
                       border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                      ),
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(icon, color: Colors.grey),
-                  onPressed: () {
-                    // Handle icon button press
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Edit $label")),
-                    );
-                  },
-                ),
+                Icon(icon, color: Colors.grey),
               ],
             ),
           ),
@@ -288,18 +415,19 @@ class _CustomBottomNavBar extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: icons.asMap().entries.map((entry) {
-          int idx = entry.key;
-          IconData icon = entry.value;
-          return IconButton(
-            icon: Icon(
-              icon,
-              size: 28,
-              color: selectedIndex == idx ? Colors.black : Colors.grey,
-            ),
-            onPressed: () => onItemTapped(idx),
-          );
-        }).toList(),
+        children:
+            icons.asMap().entries.map((entry) {
+              int idx = entry.key;
+              IconData icon = entry.value;
+              return IconButton(
+                icon: Icon(
+                  icon,
+                  size: 28,
+                  color: selectedIndex == idx ? Colors.black : Colors.grey,
+                ),
+                onPressed: () => onItemTapped(idx),
+              );
+            }).toList(),
       ),
     );
   }

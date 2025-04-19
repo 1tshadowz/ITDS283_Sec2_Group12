@@ -21,15 +21,15 @@ class _ProductPageState extends State<ProductPage> {
 
   // รายการภาพแบนเนอร์ (URL จากอินเทอร์เน็ต)
   final List<String> bannerImages = [
-    'https://i.imgur.com/95w0GAh.png',
-    'https://i.imgur.com/X6PWoQ9.png',
+    'https://scontent.fkdt1-1.fna.fbcdn.net/v/t39.30808-6/336042403_887436202564810_1331039537008241797_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=28-vB5WbaWIQ7kNvwH6XSnZ&_nc_oc=AdnYGjXNmwpSa39srvI5FaOFX2-fetQ7BesGbuGuAQ24JLxNgrXGHHL74I2cakXyGOZHWhvd4DREr9lZPATu22fA&_nc_zt=23&_nc_ht=scontent.fkdt1-1.fna&_nc_gid=Pffe7EfNvByWDkg_bvMNUQ&oh=00_AfGUjGnJjCF2fkY4HZKCR5DqAJ1YAJgOsYDllr5-O4w9oQ&oe=68084E88',
+    'https://vulcanpost.com/wp-content/uploads/2024/05/anywheel-singapore-1024x533.jpg',
     'https://i.imgur.com/SBi3ZZg.png',
   ];
 
   // รายการลิงก์ที่ต้องการให้เปิดเมื่อคลิกที่แต่ละแบนเนอร์
   final List<String> bannerLinks = [
-    'https://www.google.com/search?sca_esv=735ec2de70d5467b&rlz=1C1GCEU_enTH1126TH1126&sxsrf=AHTn8zqyZQiH4G2zyFHMZztqutzqcXfqHg:1744916924911&q=%E0%B9%81%E0%B8%81%E0%B9%89%E0%B8%A7%E0%B8%99%E0%B9%89%E0%B8%B3%E0%B8%A3%E0%B8%B1%E0%B8%81%E0%B8%A9%E0%B9%8C%E0%B9%82%E0%B8%A5%E0%B8%81&tbm=shop&source=lnms&fbs=ABzOT_CvTum9bfMS_keiIOkwIHYPL2NLy9MqS8Azaqg6O_R6uNVUIAWq8JLvWaEk3Zdd2l6KCGhJyyacOPtOG3FcnmfFNSpIpI9jyrtF-Ijhe0gRvF4FurmYBKdDHSNQGNXTowug0850eRlaLTx9ujegvEAOYE4xZb8iXt3JWiAgJESCKwqPJSVYp8-gXPWLK4DNQgqnI7Ovh3k6KRzjRs_qCOuQRpGRacd2SOLXvZDoc25MPBfhYIej0zCj1cuAmoNDDwhFUkMUTnhbuq74NISJABwMqo9R61JbprQm9dQTQ93e6wpcg00&ved=1t:200715&ictx=111&biw=1920&bih=963&dpr=1', // ลิงก์สำหรับแบนเนอร์ที่ 1
-    'https://chillpainai.com/scoop/15580/10-%E0%B8%84%E0%B8%B2%E0%B9%80%E0%B8%9F%E0%B9%88%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%99%E0%B8%9E%E0%B8%B8%E0%B8%97%E0%B8%98%E0%B8%A1%E0%B8%93%E0%B8%91%E0%B8%A5-%E0%B8%9A%E0%B8%A3%E0%B8%A3%E0%B8%A2%E0%B8%B2%E0%B8%81%E0%B8%B2%E0%B8%A8%E0%B8%8A%E0%B8%B4%E0%B8%A5-%E0%B8%99%E0%B9%88%E0%B8%B2%E0%B9%84%E0%B8%9B%E0%B9%80%E0%B8%8A%E0%B9%87%E0%B8%84%E0%B8%AD%E0%B8%B4%E0%B8%99', // ลิงก์สำหรับแบนเนอร์ที่ 2
+    'https://g.co/kgs/qJTNcHs', // ลิงก์สำหรับแบนเนอร์ที่ 1
+    'https://www.anywheel.co.th/', // ลิงก์สำหรับแบนเนอร์ที่ 2
     'https://www.pwa.co.th/contents/service', // ลิงก์สำหรับแบนเนอร์ที่ 3
   ];
 
@@ -113,38 +113,40 @@ class _ProductPageState extends State<ProductPage> {
     return Scaffold(
       backgroundColor: const Color(0xFF8ECAC4),
       body: SafeArea(
-        // ใช้ SafeArea เพื่อหลีกเลี่ยงปัญหาจากพื้นที่ที่ทับซ้อน
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // เพิ่มการแสดงผลเหมือนใน AppBar โดยใช้ Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.settings,
-                        color: Colors.white,
-                        size: 28,
+                // แก้ไขปุ่ม Setting และ Profile ให้อยู่ใน Row
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.settings,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SettingPage(),
+                            ),
+                          );
+                        },
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SettingPage(),
-                          ),
-                        );
-                      },
-                    ),
-                    const Icon(
-                      Icons.account_circle_outlined,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                  ],
+                      const Icon(
+                        Icons.account_circle_outlined,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 20),
                 // Search Bar
@@ -223,10 +225,30 @@ class _ProductPageState extends State<ProductPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildIconBox(Icons.local_drink, "Glass", Colors.orange),
-                      _buildIconBox(Icons.local_cafe, "Cafe", Colors.brown),
-                      _buildIconBox(Icons.shopping_bag, "Bag", Colors.blue),
-                      _buildIconBox(Icons.shower, "Shower", Colors.cyan),
+                      _buildIconBox(
+                        Icons.local_drink,
+                        "Glass",
+                        Colors.orange,
+                        'https://www.google.com/search?q=Eco-friendly+glass',
+                      ),
+                      _buildIconBox(
+                        Icons.local_cafe,
+                        "Cafe",
+                        Colors.brown,
+                        'https://www.google.com/search?q=Eco-friendly+cafe',
+                      ),
+                      _buildIconBox(
+                        Icons.shopping_bag,
+                        "Bag",
+                        Colors.blue,
+                        'https://www.google.com/search?q=Eco-friendly+bag',
+                      ),
+                      _buildIconBox(
+                        Icons.shower,
+                        "Shower",
+                        Colors.cyan,
+                        'https://www.google.com/search?q=Eco-friendly+shower',
+                      ),
                     ],
                   ),
                 ),
@@ -236,14 +258,27 @@ class _ProductPageState extends State<ProductPage> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildProductImage("Image 1"),
+                      _buildProductImage(
+                        "Image 1",
+                        'https://i.imgur.com/95w0GAh.png', // ลิงก์ของภาพ
+                        'https://www.google.com/search?q=Eco-friendly+glass', // ลิงก์ที่จะเปิดเมื่อคลิก
+                      ),
                       const SizedBox(width: 16),
-                      _buildProductImage("Image 2"),
+                      _buildProductImage(
+                        "Image 2",
+                        'https://i.imgur.com/SrFt44F.png', // ลิงก์ของภาพ
+                        'https://www.google.com/search?q=Eco-friendly+bottle', // ลิงก์ที่จะเปิดเมื่อคลิก
+                      ),
                       const SizedBox(width: 16),
-                      _buildProductImage("Image 3"),
+                      _buildProductImage(
+                        "Image 3",
+                        'https://i.imgur.com/QFrSI3E.png', // ลิงก์ของภาพ
+                        'https://www.google.com/search?q=Eco-friendly+lunchbox', // ลิงก์ที่จะเปิดเมื่อคลิก
+                      ),
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 20),
               ],
             ),
@@ -258,12 +293,10 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   // ฟังก์ชันสร้างกล่องไอคอนที่สามารถคลิกได้
-  Widget _buildIconBox(IconData icon, String label, Color color) {
+  Widget _buildIconBox(IconData icon, String label, Color color, String url) {
     return InkWell(
-      onTap: () {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("$label clicked")));
+      onTap: () async {
+        await openUrl(url); // เปิดลิงก์เมื่อคลิกที่ไอคอน
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -290,18 +323,24 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   // ฟังก์ชันสร้าง widget สำหรับผลิตภัณฑ์ (สินค้าคลิกได้)
-  Widget _buildProductImage(String label) {
+  Widget _buildProductImage(String label, String imageUrl, String linkUrl) {
     return InkWell(
-      onTap: () {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("$label clicked")));
+      onTap: () async {
+        await openUrl(linkUrl); // เมื่อคลิกที่ภาพ จะเปิดลิงก์ที่กำหนด
       },
       child: Container(
         color: Colors.grey[300],
         width: 150,
         height: 150,
-        child: Center(child: Text(label)),
+        child: Center(
+          child: Image.network(
+            // ใช้ Image.network เพื่อแสดงภาพจาก URL
+            imageUrl, // ลิงก์ของภาพที่ต้องการแสดง
+            width: double.infinity,  // ใช้ความกว้างของ Container เต็ม
+            height: double.infinity,  // ใช้ความสูงของ Container เต็ม
+            fit: BoxFit.cover, // ทำให้ภาพเต็มพื้นที่โดยไม่ตัดภาพ
+          ),
+        ),
       ),
     );
   }

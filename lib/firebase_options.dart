@@ -41,53 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDVAZeZIwkdYWomRcDwvRsBJ37LAtd9j7I',
-    appId: '1:1044106237234:web:c79b8a87f6a19777e1732b',
-    messagingSenderId: '1044106237234',
-    projectId: 'watertracker-4e37f',
-    authDomain: 'watertracker-4e37f.firebaseapp.com',
-    databaseURL: 'https://watertracker-4e37f-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'watertracker-4e37f.firebasestorage.app',
-    measurementId: 'G-9XE9HWMPE9',
+    apiKey: 'AIzaSyDvdpJmFPX24vGVJuKtCW0SgAvMaMyUI3M',
+    appId: '1:856666931848:web:b0787f9bf885413906553d',
+    messagingSenderId: '856666931848',
+    projectId: 'watertrackerprod',
+    authDomain: 'watertrackerprod.firebaseapp.com',
+    storageBucket: 'watertrackerprod.firebasestorage.app',
+    measurementId: 'G-FPGJY3PYX6',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDbuHPVJszJCwPLoFnoHPMVk09SgG2sQ3E',
-    appId: '1:1044106237234:android:71e5e7dfcdb592bce1732b',
-    messagingSenderId: '1044106237234',
-    projectId: 'watertracker-4e37f',
-    databaseURL: 'https://watertracker-4e37f-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'watertracker-4e37f.firebasestorage.app',
+    apiKey: 'AIzaSyBn0ikCaOohGNQASSlzt5kVirkAksVHF7c',
+    appId: '1:856666931848:android:403e3c3cb1fe49c506553d',
+    messagingSenderId: '856666931848',
+    projectId: 'watertrackerprod',
+    storageBucket: 'watertrackerprod.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDc2jaT8yzCv5QWJdvipApAeT0YSj0xLPY',
-    appId: '1:1044106237234:ios:d9feef16dc2c4eebe1732b',
-    messagingSenderId: '1044106237234',
-    projectId: 'watertracker-4e37f',
-    databaseURL: 'https://watertracker-4e37f-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'watertracker-4e37f.firebasestorage.app',
+    apiKey: 'AIzaSyDMBLQuu-Sr4lXA-SLBRbQmX2836kwLSSw',
+    appId: '1:856666931848:ios:b7c891e26886f21806553d',
+    messagingSenderId: '856666931848',
+    projectId: 'watertrackerprod',
+    storageBucket: 'watertrackerprod.firebasestorage.app',
     iosBundleId: 'com.example.project',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDc2jaT8yzCv5QWJdvipApAeT0YSj0xLPY',
-    appId: '1:1044106237234:ios:d9feef16dc2c4eebe1732b',
-    messagingSenderId: '1044106237234',
-    projectId: 'watertracker-4e37f',
-    databaseURL: 'https://watertracker-4e37f-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'watertracker-4e37f.firebasestorage.app',
+    apiKey: 'AIzaSyDMBLQuu-Sr4lXA-SLBRbQmX2836kwLSSw',
+    appId: '1:856666931848:ios:b7c891e26886f21806553d',
+    messagingSenderId: '856666931848',
+    projectId: 'watertrackerprod',
+    storageBucket: 'watertrackerprod.firebasestorage.app',
     iosBundleId: 'com.example.project',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDVAZeZIwkdYWomRcDwvRsBJ37LAtd9j7I',
-    appId: '1:1044106237234:web:c8b6157694f6022fe1732b',
-    messagingSenderId: '1044106237234',
-    projectId: 'watertracker-4e37f',
-    authDomain: 'watertracker-4e37f.firebaseapp.com',
-    databaseURL: 'https://watertracker-4e37f-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'watertracker-4e37f.firebasestorage.app',
-    measurementId: 'G-YRG1L5YJ41',
+    apiKey: 'AIzaSyDvdpJmFPX24vGVJuKtCW0SgAvMaMyUI3M',
+    appId: '1:856666931848:web:2c9273b38835afd406553d',
+    messagingSenderId: '856666931848',
+    projectId: 'watertrackerprod',
+    authDomain: 'watertrackerprod.firebaseapp.com',
+    storageBucket: 'watertrackerprod.firebasestorage.app',
+    measurementId: 'G-D2STERREFP',
   );
+
 }

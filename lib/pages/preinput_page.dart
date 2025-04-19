@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';  // Firestore Import
 import 'login.dart';  // ใช้สำหรับนำผู้ใช้ไปหน้า LoginPage
 
 class PreInputPage extends StatefulWidget {
@@ -51,11 +51,11 @@ class _PreInputPageState extends State<PreInputPage> {
       User? user = FirebaseAuth.instance.currentUser;
 
       if (user != null) {
-        // Reference to Firebase Realtime Database
-        DatabaseReference dbRef = FirebaseDatabase.instance.ref('users/${user.uid}');
+        // Reference to Firebase Firestore
+        DocumentReference userRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
 
-        // Save the additional user data into Firebase Realtime Database
-        await dbRef.set(result);
+        // Save the additional user data into Firestore
+        await userRef.collection('usage').add(result); // ใช้ subcollection 'usage' เพื่อเก็บข้อมูล
 
         // Show success message
         _showAlert('Your information has been saved successfully!', true);
@@ -143,7 +143,7 @@ class _PreInputPageState extends State<PreInputPage> {
                   backgroundColor: const Color(0xFF8CBAB7),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                onPressed: _submitData,  // เมื่อกดปุ่ม จะส่งข้อมูลไปที่ Firebase
+                onPressed: _submitData,  // เมื่อกดปุ่ม จะส่งข้อมูลไปที่ Firestore
                 child: const Text(
                   'Submit Information',
                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
