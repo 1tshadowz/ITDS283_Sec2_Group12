@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';  // เพิ่ม Firestore import
+import 'package:cloud_firestore/cloud_firestore.dart'; // เพิ่ม Firestore import
 import 'activity.dart';
 import 'dashboard.dart';
 import 'achievement.dart';
@@ -16,7 +16,7 @@ class TrackWaterPage extends StatefulWidget {
 }
 
 class _TrackWaterPageState extends State<TrackWaterPage> {
-  final List<String> _timeOptions = ['Select', 'Quick', 'Medium', 'Long'];
+  final List<String> _timeOptions = ['Quick', 'Medium', 'Long'];
   String? usage;
   String? timeOption;
   String? date;
@@ -121,63 +121,71 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
   }
 
   // ฟังก์ชันเพื่อบันทึกข้อมูลลง Firestore
-Future<void> _submitData() async {
-  // Get current user from Firebase Authentication
-  User? user = FirebaseAuth.instance.currentUser;
+  Future<void> _submitData() async {
+    // ✅ ตรวจสอบก่อนว่ากรอกข้อมูลครบหรือไม่
+    if (usage == null ||
+        date == null ||
+        (usage == 'Drinking' && quantityController.text.isEmpty) ||
+        (usage == 'Showering' && (timeOption == null || leakage == null)) ||
+        ((usage == 'Cooking' || usage == 'Toilet') && leakage == null)) {
+      _showAlert('Please complete all required fields.', false);
+      return;
+    }
 
-  if (user != null) {
-    try {
-      // Get a reference to the Firestore document for the user's water usage data
-      DocumentReference ref = FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('track_usage')  // Create a subcollection for each user
-          .doc();  // Auto-generated document ID
+    // ✅ หากข้อมูลครบแล้วค่อยส่งเข้า Firestore
+    User? user = FirebaseAuth.instance.currentUser;
 
-      // Prepare the data
-      await ref.set({
-        'usage': usage,
-        'time_option': timeOption,
-        'quantity': quantityController.text,
-        'unit_cost': perUnitController.text,
-        'leakage': leakage,
-        'date': date,
-      });
+    if (user != null) {
+      try {
+        DocumentReference ref =
+            FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .collection('track_usage')
+                .doc(); // สร้างเอกสารอัตโนมัติ
 
-      // Show a success alert and navigate to DashboardPage
-      _showAlert('Data saved successfully!', true);
-    } catch (e) {
-      // Handle errors
-      _showAlert('Failed to save data: $e', false);
+        await ref.set({
+          'usage': usage,
+          'time_option': timeOption,
+          'quantity': quantityController.text,
+          'unit_cost': perUnitController.text,
+          'leakage': leakage,
+          'date': date,
+        });
+
+        _showAlert('Data saved successfully!', true);
+      } catch (e) {
+        _showAlert('Failed to save data: $e', false);
+      }
     }
   }
-}
 
   // ฟังก์ชันแสดง alert
-void _showAlert(String message, bool success) {
-  showDialog(
-    context: context,
-    builder: (_) => AlertDialog(
-      title: const Text('Notification'),
-      content: Text(message),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-            if (success) {
-              // After success, navigate to DashboardPage
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const DashboardPage()),
-              );
-            }
-          },
-          child: const Text('OK'),
-        ),
-      ],
-    ),
-  );
-}
+  void _showAlert(String message, bool success) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Notification'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  if (success) {
+                    // After success, navigate to DashboardPage
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const DashboardPage()),
+                    );
+                  }
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -234,6 +242,12 @@ void _showAlert(String message, bool success) {
                       if (usage == 'Drinking') {
                         timeOption = null;
                         leakage = null;
+                      } else if (usage == 'Showering') {
+                        timeOption = 'Medium';
+                        leakage = 'No';
+                      } else if (usage == 'Cooking' || usage == 'Toilet') {
+                        timeOption = null;
+                        leakage = 'No';
                       }
                     });
                   },
@@ -287,7 +301,8 @@ void _showAlert(String message, bool success) {
                 ],
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: _submitData,  // Save data to Firestore when the user confirms
+                  onPressed:
+                      _submitData, // Save data to Firestore when the user confirms
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFA5E6A0),
                     shape: RoundedRectangleBorder(
@@ -312,7 +327,6 @@ void _showAlert(String message, bool success) {
     );
   }
 }
-
 
 class _CustomBottomNavBar extends StatelessWidget {
   final int selectedIndex;

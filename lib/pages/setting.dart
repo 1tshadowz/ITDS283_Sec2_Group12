@@ -25,6 +25,7 @@ class _SettingPageState extends State<SettingPage> {
   TextEditingController phoneController = TextEditingController();
 
   User? user;
+  String username = '';  // เพิ่มตัวแปร username เพื่อเก็บข้อมูลจาก Firestore
 
   @override
   void initState() {
@@ -79,7 +80,7 @@ class _SettingPageState extends State<SettingPage> {
           FirebaseFirestore.instance.collection('users').doc(user.uid).update({
             'password': newPasswordController.text.trim(),
           });
-           // อัพเดตรหัสผ่านใหม่
+          // อัพเดตรหัสผ่านใหม่
         }
 
         // นำทางไปที่ Dashboard หลังจากอัพเดตสำเร็จ
@@ -208,11 +209,6 @@ class _SettingPageState extends State<SettingPage> {
                   children: [
                     Center(
                       child: GestureDetector(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("อัพเดทโปรไฟล์")),
-                          );
-                        },
                         child: CircleAvatar(
                           radius: 70,
                           backgroundColor: const Color.fromARGB(
@@ -224,15 +220,14 @@ class _SettingPageState extends State<SettingPage> {
                           child: CircleAvatar(
                             radius: 60,
                             backgroundImage: NetworkImage(
-                              'https://i.imgur.com/SrFt44F.png',
+                              'https://i.imgur.com/uWqNEhd.jpeg',
                             ),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
                     Text(
-                      usernameController.text,
+                      "Profile", // แสดงชื่อผู้ใช้ที่ดึงมาจาก Firestore
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,

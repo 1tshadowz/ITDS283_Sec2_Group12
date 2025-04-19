@@ -1,11 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import '../db/db_helper.dart';
-import 'track.dart';
+import 'package:table_calendar/table_calendar.dart';
 import 'dashboard.dart';
 import 'achievement.dart';
 import 'products.dart';
+import 'track.dart';
 import 'setting.dart';
 
 class ActivityPage extends StatefulWidget {
@@ -20,10 +22,10 @@ class _ActivityPageState extends State<ActivityPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   Map<String, dynamic> activityData = {
-    'drinking': 0,
+    'drinking': 0.0,
     'showering': 0,
     'cooking': 0,
-    'planting': 0,
+    'Toilet': 0,
   };
 
   @override
@@ -57,12 +59,96 @@ class _ActivityPageState extends State<ActivityPage> {
   }
 
   Future<void> _loadDataForDate(DateTime date) async {
-    final String formatted = DateFormat('yyyy-MM-dd').format(date);
-    final data = await DatabaseHelper.instance.getDailySummaryByDate(formatted);
+    final String formattedDate = DateFormat('d/M/yyyy').format(date);
+    final User? user = FirebaseAuth.instance.currentUser;
 
-    setState(() {
-      activityData = data;
-    });
+    if (user != null) {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('track_usage')
+          .where('date', isEqualTo: formattedDate)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        double drinkingTotal = 0.0;
+        double showeringTotal = 0.0;
+        double cookingTotal = 0.0;
+        double toiletTotal = 0.0;
+
+        for (var doc in querySnapshot.docs) {
+          var docData = doc.data();
+          String usage = docData['usage'] ?? '';
+
+          if (usage == 'Drinking') {
+            int glasses = int.tryParse(docData['quantity'] ?? '0') ?? 0;
+            drinkingTotal += glasses * 0.25;
+          } else if (usage == 'Showering') {
+            double timeValue = 0;
+            switch (docData['time_option']) {
+              case 'Quick':
+                timeValue = 3;
+                break;
+              case 'Medium':
+                timeValue = 5;
+                break;
+              case 'Long':
+                timeValue = 8;
+                break;
+              default:
+                timeValue = 0;
+            }
+            if (docData['leakage'] == 'Yes') {
+              timeValue += 2;
+            }
+            showeringTotal += timeValue;
+          } else if (usage == 'Cooking') {
+            double value = 1;
+            if (docData['leakage'] == 'Yes') {
+              value += 1;
+            }
+            cookingTotal += value;
+          } else if (usage == 'Toilet') {
+            double value = 10;
+            if (docData['leakage'] == 'Yes') {
+              value += 2;
+            }
+            toiletTotal += value;
+          }
+        }
+
+        setState(() {
+          activityData = {
+            'drinking': drinkingTotal,
+            'showering': showeringTotal,
+            'cooking': cookingTotal,
+            'Toilet': toiletTotal,
+          };
+        });
+      } else {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection('track_usage')
+            .add({
+              'date': formattedDate,
+              'usage': 'Drinking',
+              'quantity': '0',
+              'time_option': null,
+              'leakage': null,
+              'unit_cost': '',
+            });
+
+        setState(() {
+          activityData = {
+            'drinking': 0.0,
+            'showering': 0.0,
+            'cooking': 0.0,
+            'Toilet': 0.0,
+          };
+        });
+      }
+    }
   }
 
   @override
@@ -123,10 +209,10 @@ class _ActivityPageState extends State<ActivityPage> {
                   crossAxisSpacing: 16,
                   childAspectRatio: 1,
                   children: [
-                    ActivityCard(label: "Drinking", progress: int.tryParse(activityData['drinking'].toString()) ?? 0, goal: 2, emoji: "🧑‍⚕️"),
-                    ActivityCard(label: "Showering", progress: int.tryParse(activityData['showering'].toString()) ?? 0, goal: 20, emoji: "🚿"),
-                    ActivityCard(label: "Cooking", progress: int.tryParse(activityData['cooking'].toString()) ?? 0, goal: 6, emoji: "🧑‍🍳"),
-                    ActivityCard(label: "Using Toilet", progress: int.tryParse(activityData['using toilet'].toString()) ?? 0, goal: 20, emoji: "🚽"),
+                    ActivityCard(label: "Drinking", progress: activityData['drinking'], goal: 2.0, emoji: "🧑‍⚕️"),
+                    ActivityCard(label: "Showering", progress: activityData['showering'], goal: 20.0, emoji: "🚿"),
+                    ActivityCard(label: "Cooking", progress: activityData['cooking'], goal: 6.0, emoji: "🧑‍🍳"),
+                    ActivityCard(label: "Toilet", progress: activityData['Toilet'], goal: 30.0, emoji: "🚽"),
                   ],
                 ),
               ),
@@ -140,8 +226,8 @@ class _ActivityPageState extends State<ActivityPage> {
 
 class ActivityCard extends StatelessWidget {
   final String label;
-  final int progress;
-  final int goal;
+  final dynamic progress;
+  final dynamic goal;
   final String emoji;
 
   const ActivityCard({
@@ -154,7 +240,7 @@ class ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double percent = progress / goal;
+    double percent = (progress is num && goal is num && goal > 0) ? (progress / goal) : 0.0;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -169,12 +255,12 @@ class ActivityCard extends StatelessWidget {
           Text(emoji, style: const TextStyle(fontSize: 28)),
           const SizedBox(height: 10),
           LinearProgressIndicator(
-            value: percent,
+            value: percent.clamp(0.0, 1.0),
             backgroundColor: Colors.grey.shade300,
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.teal),
           ),
           const SizedBox(height: 6),
-          Text("$progress/$goal"),
+          Text("$progress/$goal litre"),
         ],
       ),
     );

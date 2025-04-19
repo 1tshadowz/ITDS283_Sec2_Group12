@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';  // Firestore Import
-import 'login.dart';  // ใช้สำหรับนำผู้ใช้ไปหน้า LoginPage
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore Import
+import 'login.dart'; // ใช้สำหรับนำผู้ใช้ไปหน้า LoginPage
 
 class PreInputPage extends StatefulWidget {
   final String username;
@@ -37,11 +37,11 @@ class _PreInputPageState extends State<PreInputPage> {
       'username': widget.username,
       'email': widget.email,
       'phone': widget.phone,
-      'last_month': lastMonthController.text,
-      'last_2_month': last2MonthController.text,
-      'last_3_month': last3MonthController.text,
+      'last_month': double.tryParse(lastMonthController.text) ?? 0.0,
+      'last_2_month': double.tryParse(last2MonthController.text) ?? 0.0,
+      'last_3_month': double.tryParse(last3MonthController.text) ?? 0.0,
       'water_type': selectedWaterType,
-      'cost': costController.text,
+      'cost': double.tryParse(costController.text) ?? 0.0,
       'record_bill': isChecked1 ? 1 : 0,
       'think_waste': isChecked2 ? 1 : 0,
     };
@@ -52,10 +52,14 @@ class _PreInputPageState extends State<PreInputPage> {
 
       if (user != null) {
         // Reference to Firebase Firestore
-        DocumentReference userRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
+        DocumentReference userRef = FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid);
 
         // Save the additional user data into Firestore
-        await userRef.collection('usage').add(result); // ใช้ subcollection 'usage' เพื่อเก็บข้อมูล
+        await userRef
+            .collection('usage')
+            .add(result); // ใช้ subcollection 'usage' เพื่อเก็บข้อมูล
 
         // Show success message
         _showAlert('Your information has been saved successfully!', true);
@@ -69,26 +73,27 @@ class _PreInputPageState extends State<PreInputPage> {
   void _showAlert(String message, bool success) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Notification'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              if (success) {
-                // After success, navigate to LoginPage
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
-                  (route) => false,  // Prevent user from going back
-                );
-              }
-            },
-            child: const Text('OK'),
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Notification'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  if (success) {
+                    // After success, navigate to LoginPage
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                      (route) => false, // Prevent user from going back
+                    );
+                  }
+                },
+                child: const Text('OK'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -116,10 +121,15 @@ class _PreInputPageState extends State<PreInputPage> {
               const SizedBox(height: 5),
               DropdownButtonFormField<String>(
                 value: selectedWaterType,
-                items: ['Tap Water', 'Filtered Water', 'Bottled Water']
-                    .map((type) => DropdownMenuItem(value: type, child: Text(type)))
-                    .toList(),
-                onChanged: (value) => setState(() => selectedWaterType = value!),
+                items:
+                    ['Tap Water', 'Filtered Water', 'Bottled Water']
+                        .map(
+                          (type) =>
+                              DropdownMenuItem(value: type, child: Text(type)),
+                        )
+                        .toList(),
+                onChanged:
+                    (value) => setState(() => selectedWaterType = value!),
                 decoration: const InputDecoration(border: OutlineInputBorder()),
               ),
               const SizedBox(height: 10),
@@ -143,10 +153,14 @@ class _PreInputPageState extends State<PreInputPage> {
                   backgroundColor: const Color(0xFF8CBAB7),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                onPressed: _submitData,  // เมื่อกดปุ่ม จะส่งข้อมูลไปที่ Firestore
+                onPressed:
+                    _submitData, // เมื่อกดปุ่ม จะส่งข้อมูลไปที่ Firestore
                 child: const Text(
                   'Submit Information',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
