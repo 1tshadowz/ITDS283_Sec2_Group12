@@ -176,7 +176,7 @@ class _TrackWaterPageState extends State<TrackWaterPage> {
                     // After success, navigate to DashboardPage
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (_) => const DashboardPage()),
+                      MaterialPageRoute(builder: (_) => const ActivityPage()),
                     );
                   }
                 },

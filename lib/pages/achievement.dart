@@ -59,7 +59,7 @@ class _AchievementPageState extends State<AchievementPage> {
       int amount = 0;
       if (data['usage'] == 'Drinking') {
         if (isToday) drank = true;
-        amount += int.tryParse(data['quantity'] ?? '0') ?? 0;
+        amount += ((int.tryParse(data['quantity'] ?? '0') ?? 0) * 0.25).toInt();
       } else if (data['usage'] == 'Showering') {
         if (isToday) showered = true;
         switch (data['time_option']) {

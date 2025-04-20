@@ -85,7 +85,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
 
         int amount = 0;
         if (data['usage'] == 'Drinking') {
-          amount += int.tryParse(data['quantity'] ?? '0') ?? 0;
+          amount += ((int.tryParse(data['quantity'] ?? '0') ?? 0) * 0.25).toInt();
         } else if (data['usage'] == 'Showering') {
           switch (data['time_option']) {
             case 'Quick':
