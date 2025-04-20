@@ -390,40 +390,36 @@ class _CustomBottomNavBar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    List<IconData> icons = [
-      Icons.pie_chart,
-      Icons.calendar_today,
-      Icons.home,
-      Icons.emoji_events_outlined,
-      Icons.water_drop_outlined,
-    ];
+Widget build(BuildContext context) {
+  List<IconData> icons = [
+    Icons.pie_chart,
+    Icons.calendar_today,
+    Icons.home,
+    Icons.emoji_events_outlined,
+    Icons.water_drop_outlined,
+  ];
 
-    return Container(
+  return SafeArea( // 👈 ห่อด้วย SafeArea
+    top: false, // ไม่ต้องห่วงด้านบน
+    child: Container(
       height: 70,
       decoration: const BoxDecoration(
         color: Color(0xFFE9DCC7),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
-        ),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children:
-            icons.asMap().entries.map((entry) {
-              int idx = entry.key;
-              IconData icon = entry.value;
-              return IconButton(
-                icon: Icon(
-                  icon,
-                  size: 28,
-                  color: selectedIndex == idx ? Colors.black : Colors.grey,
-                ),
-                onPressed: () => onItemTapped(idx),
-              );
-            }).toList(),
+        children: icons.asMap().entries.map((entry) {
+          int idx = entry.key;
+          IconData icon = entry.value;
+          return IconButton(
+            icon: Icon(icon, size: 28, color: selectedIndex == idx ? Colors.black : Colors.grey),
+            onPressed: () => onItemTapped(idx),
+          );
+        }).toList(),
       ),
-    );
-  }
+    ),
+  );
+}
+
 }

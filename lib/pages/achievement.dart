@@ -35,11 +35,12 @@ class _AchievementPageState extends State<AchievementPage> {
     final now = DateTime.now();
     final today = "${now.day}/${now.month}/${now.year}";
 
-    final snapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('track_usage')
-        .get();
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection('track_usage')
+            .get();
 
     bool drank = false;
     bool showered = false;
@@ -171,7 +172,10 @@ class _AchievementPageState extends State<AchievementPage> {
       const ProductPage(),
     ];
 
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => pages[index]));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => pages[index]),
+    );
   }
 
   double getProgressValue(String progress) {
@@ -246,7 +250,9 @@ class _AchievementPageState extends State<AchievementPage> {
                 LinearProgressIndicator(
                   value: progressValue,
                   backgroundColor: Colors.grey[300],
-                  valueColor: AlwaysStoppedAnimation<Color>(achievement['color']),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    achievement['color'],
+                  ),
                 ),
                 const SizedBox(height: 10),
               ],
@@ -270,12 +276,23 @@ class _AchievementPageState extends State<AchievementPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.settings, color: Colors.white, size: 28),
+                    icon: const Icon(
+                      Icons.settings,
+                      color: Colors.white,
+                      size: 28,
+                    ),
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingPage()));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SettingPage()),
+                      );
                     },
                   ),
-                  const Icon(Icons.account_circle_outlined, color: Colors.white, size: 30),
+                  const Icon(
+                    Icons.account_circle_outlined,
+                    color: Colors.white,
+                    size: 30,
+                  ),
                 ],
               ),
             ),
@@ -283,7 +300,9 @@ class _AchievementPageState extends State<AchievementPage> {
             Expanded(
               child: ListView.builder(
                 itemCount: achievements.length,
-                itemBuilder: (context, index) => buildAchievementCard(achievements[index]),
+                itemBuilder:
+                    (context, index) =>
+                        buildAchievementCard(achievements[index]),
               ),
             ),
           ],
@@ -301,7 +320,10 @@ class _CustomBottomNavBar extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemTapped;
 
-  const _CustomBottomNavBar({required this.selectedIndex, required this.onItemTapped});
+  const _CustomBottomNavBar({
+    required this.selectedIndex,
+    required this.onItemTapped,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -313,22 +335,34 @@ class _CustomBottomNavBar extends StatelessWidget {
       Icons.water_drop_outlined,
     ];
 
-    return Container(
-      height: 70,
-      decoration: const BoxDecoration(
-        color: Color(0xFFE9DCC7),
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: icons.asMap().entries.map((entry) {
-          int idx = entry.key;
-          IconData icon = entry.value;
-          return IconButton(
-            icon: Icon(icon, size: 28, color: selectedIndex == idx ? Colors.black : Colors.grey),
-            onPressed: () => onItemTapped(idx),
-          );
-        }).toList(),
+    return SafeArea(
+      // 👈 ห่อด้วย SafeArea
+      top: false, // ไม่ต้องห่วงด้านบน
+      child: Container(
+        height: 70,
+        decoration: const BoxDecoration(
+          color: Color(0xFFE9DCC7),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children:
+              icons.asMap().entries.map((entry) {
+                int idx = entry.key;
+                IconData icon = entry.value;
+                return IconButton(
+                  icon: Icon(
+                    icon,
+                    size: 28,
+                    color: selectedIndex == idx ? Colors.black : Colors.grey,
+                  ),
+                  onPressed: () => onItemTapped(idx),
+                );
+              }).toList(),
+        ),
       ),
     );
   }

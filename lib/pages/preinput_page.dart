@@ -112,6 +112,11 @@ class _PreInputPageState extends State<PreInputPage> {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
+              const Text(
+                'Enter the amount of water you used in the last 3 months (in units)',
+                style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 20),
               buildTextField('Last Month', lastMonthController),
               buildTextField('Last 2 Month', last2MonthController),

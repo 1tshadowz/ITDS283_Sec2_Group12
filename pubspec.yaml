@@ -23,11 +23,18 @@ dependencies:
   intl: ^0.20.2
   image_picker: ^1.1.2
   firebase_storage: ^12.4.5
+  
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
+
+flutter_icons: # 👈 เพิ่มด้านล่างสุดของไฟล์
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"

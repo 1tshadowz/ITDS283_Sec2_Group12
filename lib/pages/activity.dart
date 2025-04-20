@@ -277,16 +277,18 @@ class _CustomBottomNavBar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    List<IconData> icons = [
-      Icons.pie_chart,
-      Icons.calendar_today,
-      Icons.home,
-      Icons.emoji_events_outlined,
-      Icons.water_drop_outlined,
-    ];
+Widget build(BuildContext context) {
+  List<IconData> icons = [
+    Icons.pie_chart,
+    Icons.calendar_today,
+    Icons.home,
+    Icons.emoji_events_outlined,
+    Icons.water_drop_outlined,
+  ];
 
-    return Container(
+  return SafeArea( // 👈 ห่อด้วย SafeArea
+    top: false, // ไม่ต้องห่วงด้านบน
+    child: Container(
       height: 70,
       decoration: const BoxDecoration(
         color: Color(0xFFE9DCC7),
@@ -303,6 +305,8 @@ class _CustomBottomNavBar extends StatelessWidget {
           );
         }).toList(),
       ),
-    );
-  }
+    ),
+  );
+}
+
 }
